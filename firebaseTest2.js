@@ -17,7 +17,7 @@ const db = getFirestore(app);
 
 const COLLECTION_NAME = "topics";
 
-(async () => {
+async function testFirebaseConnection() {
   try {
     const q = query(collection(db, COLLECTION_NAME));
 
@@ -33,4 +33,7 @@ const COLLECTION_NAME = "topics";
   } catch (err) {
     console.error("❌ Firebase query failed:", err.message);
   }
-})();
+}
+
+await testFirebaseConnection();
+process.exit(0);
