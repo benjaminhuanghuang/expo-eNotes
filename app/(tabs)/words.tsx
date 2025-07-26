@@ -131,6 +131,11 @@ export default function WordsScreen() {
     }
   });
 
+  // Calculate counts for badges
+  const newWordsCount = words.filter((word) => !word.isRemembered).length;
+  const favoritesCount = words.filter((word) => word.isFavorite).length;
+  const rememberedCount = words.filter((word) => word.isRemembered).length;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
@@ -142,14 +147,28 @@ export default function WordsScreen() {
             ]}
             onPress={() => setFilter("new")}
           >
-            <ThemedText
-              style={[
-                styles.filterText,
-                filter === "new" && styles.activeFilterText,
-              ]}
-            >
-              New Words
-            </ThemedText>
+            <ThemedView style={styles.buttonContent}>
+              <ThemedText
+                style={[
+                  styles.filterText,
+                  filter === "new" && styles.activeFilterText,
+                ]}
+              >
+                New Words
+              </ThemedText>
+              <ThemedView
+                style={[styles.badge, filter === "new" && styles.activeBadge]}
+              >
+                <ThemedText
+                  style={[
+                    styles.badgeText,
+                    filter === "new" && styles.activeBadgeText,
+                  ]}
+                >
+                  {newWordsCount}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -159,14 +178,31 @@ export default function WordsScreen() {
             ]}
             onPress={() => setFilter("favorites")}
           >
-            <ThemedText
-              style={[
-                styles.filterText,
-                filter === "favorites" && styles.activeFilterText,
-              ]}
-            >
-              Favorites
-            </ThemedText>
+            <ThemedView style={styles.buttonContent}>
+              <ThemedText
+                style={[
+                  styles.filterText,
+                  filter === "favorites" && styles.activeFilterText,
+                ]}
+              >
+                Favorites
+              </ThemedText>
+              <ThemedView
+                style={[
+                  styles.badge,
+                  filter === "favorites" && styles.activeBadge,
+                ]}
+              >
+                <ThemedText
+                  style={[
+                    styles.badgeText,
+                    filter === "favorites" && styles.activeBadgeText,
+                  ]}
+                >
+                  {favoritesCount}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -176,36 +212,32 @@ export default function WordsScreen() {
             ]}
             onPress={() => setFilter("remembered")}
           >
-            <ThemedText
-              style={[
-                styles.filterText,
-                filter === "remembered" && styles.activeFilterText,
-              ]}
-            >
-              Remembered
-            </ThemedText>
+            <ThemedView style={styles.buttonContent}>
+              <ThemedText
+                style={[
+                  styles.filterText,
+                  filter === "remembered" && styles.activeFilterText,
+                ]}
+              >
+                Remembered
+              </ThemedText>
+              <ThemedView
+                style={[
+                  styles.badge,
+                  filter === "remembered" && styles.activeBadge,
+                ]}
+              >
+                <ThemedText
+                  style={[
+                    styles.badgeText,
+                    filter === "remembered" && styles.activeBadgeText,
+                  ]}
+                >
+                  {rememberedCount}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
           </TouchableOpacity>
-        </ThemedView>
-
-        <ThemedView style={styles.statsRow}>
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>{words.length}</ThemedText>
-            <ThemedText style={styles.statLabel}>Total Words</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>
-              {words.filter((word) => word.isFavorite).length}
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Favorites</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>
-              {words.filter((word) => word.isRemembered).length}
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Remembered</ThemedText>
-          </ThemedView>
         </ThemedView>
 
         <ThemedView style={styles.notesSection}>
@@ -338,8 +370,8 @@ const styles = StyleSheet.create({
   },
   filterButton: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     borderRadius: 6,
     alignItems: "center",
   },
@@ -349,30 +381,34 @@ const styles = StyleSheet.create({
   filterText: {
     fontSize: 14,
     fontWeight: "500",
-  },
-  activeFilterText: {
-    color: "#FFFFFF",
-  },
-  statsRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
-  },
-  statCard: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "rgba(74, 144, 226, 0.05)",
-    borderRadius: 8,
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: "bold",
     color: "#4A90E2",
   },
-  statLabel: {
+  activeFilterText: {},
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  badge: {
+    backgroundColor: "rgba(74, 144, 226, 0.15)",
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 6,
+  },
+  activeBadge: {
+    // backgroundColor: "rgba(255, 255, 255, 0.25)",
+  },
+  badgeText: {
     fontSize: 12,
-    opacity: 0.7,
-    marginTop: 4,
+    fontWeight: "600",
+    color: "#4A90E2",
+  },
+  activeBadgeText: {
+    // color: "#FFFFFF",
   },
   notesSection: {
     marginBottom: 32,
