@@ -28,6 +28,18 @@ The settings for the prompt buttons has content
 ];
 ```
 
-I want to save it in firebase, when app staring, the data will be fetched from firebase and displayed in index page.
+when app staring, the data will be fetched the prompts from firebase and displayed as the prompt buttons in index page.
+
+When user click the button, the prompt will be sent to gemini and response will be displayed in the main view. The label will be displayed in the button.
+
+When user click the settings button, it will enter a settings page, where user can add, edit, delete, reorder the items.
+
+When user add a new item, it will be added to firebase and displayed in the settings page.
+
+When user edit an item, it will be updated in firebase and displayed in the settings page.
+
+When user delete an item, it will be removed from firebase and settings page.
+
+When user reorder the items, it will be updated in firebase and displayed in the settings page.
 
 When user modify the data in settings page, the new data will be saved into firebase and refreshed on the index page.
