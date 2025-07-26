@@ -68,7 +68,6 @@ export const saveTopic = async (item: Topic): Promise<void> => {
     await setDoc(doc(db, COLLECTION_NAME, item.id), {
       label: item.label,
       prompt: item.prompt,
-      color: item.color || "#007AFF",
       order: item.order,
     });
   } catch (error) {

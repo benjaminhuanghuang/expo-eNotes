@@ -47,8 +47,7 @@ export default function SettingsScreen() {
           id: Date.now().toString(),
           label: newLabel.trim(),
           prompt: newPrompt.trim(),
-          color: "#007AFF", // Default color
-          order: promptItems.length,
+          order: promptItems.length, // Default order based on current length
         };
 
         await savePromptMutation.mutateAsync(newItem);
