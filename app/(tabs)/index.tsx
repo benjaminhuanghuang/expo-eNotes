@@ -43,11 +43,6 @@ export default function HomeScreen() {
   const handlePromptPress = async (prompt: Topic) => {
     try {
       setProcessingPrompt(true);
-
-      // Simulate AI processing with mock news
-      const newsContext = mockNews.slice(0, 5).join("\n");
-      const fullPrompt = `${prompt.prompt}\n\nNews Context:\n${newsContext}`;
-
       // In a real app, you would call your AI service here
       // For now, we'll just show a mock response
       setTimeout(() => {

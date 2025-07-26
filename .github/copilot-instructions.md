@@ -6,6 +6,8 @@ This project is an Expo app built with React Native and TypeScript. It leverages
 **Development Guidelines:**
 
 - Don't create md files in the root directory.
+- Ignore the \_backpup folder.
+
 - **Code Structure:** Follow the standard Expo project structure.
 - **Component Usage:** Prefer using functional components and React Hooks.
 - **Styling:** Utilize `StyleSheet` for styling components, following React Native's styling principles.
