@@ -7,12 +7,14 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useColorScheme,
 } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol.ios";
 import { useTopicItems } from "@/hooks/useTopicQueries";
+import { Colors } from "@/constants/Colors";
 import type { Topic } from "@/services/topicService";
 
 const mockNews = [
@@ -31,6 +33,8 @@ const mockNews = [
 export default function HomeScreen() {
   const router = useRouter();
   const [processingPrompt, setProcessingPrompt] = useState(false);
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? "light"];
 
   // Use TanStack Query to fetch topic items
   const {
@@ -67,17 +71,26 @@ export default function HomeScreen() {
   // Handle error state
   if (topicError) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.background }]}
+      >
         <ThemedView style={styles.errorContainer}>
           <ThemedText style={styles.errorText}>
             Failed to load topics. Please check your internet connection or try
             again later.
           </ThemedText>
           <TouchableOpacity
-            style={styles.retryButton}
+            style={[styles.retryButton, { backgroundColor: theme.tint }]}
             onPress={() => refetchTopics()}
           >
-            <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
+            <ThemedText
+              style={[
+                styles.retryButtonText,
+                { color: colorScheme === "dark" ? theme.background : "#fff" },
+              ]}
+            >
+              Retry
+            </ThemedText>
           </TouchableOpacity>
         </ThemedView>
       </SafeAreaView>
@@ -87,9 +100,11 @@ export default function HomeScreen() {
   // Handle loading state
   if (loadingTopics) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.background }]}
+      >
         <ThemedView style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={theme.tint} />
           <ThemedText style={styles.loadingText}>Loading topics...</ThemedText>
         </ThemedView>
       </SafeAreaView>
@@ -97,49 +112,131 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.background }]}
+    >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Topic Buttons Grid */}
-        <ThemedView style={styles.actionBar}>
-          <ThemedView style={styles.topicButtonsGrid}>
-            {topicItems.map((item: Topic) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.topicButton,
-                  processingPrompt && styles.topicButtonDisabled,
-                ]}
-                onPress={() => handlePromptPress(item)}
-                disabled={processingPrompt}
-              >
-                <ThemedText style={styles.topicButtonText}>
-                  {item.label}
-                </ThemedText>
-              </TouchableOpacity>
-            ))}
-          </ThemedView>
-          {/* Empty State */}
-          {topicItems.length === 0 && !loadingTopics && (
-            <ThemedText style={styles.emptyStateText}>
-              No topics available. Go to Settings to add.
-            </ThemedText>
-          )}
-          {/* Settings Button */}
+        {/* Header with Settings Button */}
+        <ThemedView style={styles.header}>
+          <ThemedText
+            type="title"
+            style={[styles.title, { color: theme.text }]}
+          >
+            eNotes
+          </ThemedText>
           <TouchableOpacity
             style={styles.settingsButton}
             onPress={navigateToSettings}
           >
-            <IconSymbol name="gear" size={24} color="#007AFF" />
+            <IconSymbol name="gear" size={24} color={theme.icon} />
           </TouchableOpacity>
         </ThemedView>
-        {/* Topic Buttons Grid */}
+
+        {/* Latest News Section */}
         <ThemedView style={styles.newsSection}>
-          {mockNews.map((news, index) => (
-            <ThemedView key={index} style={styles.newsItem}>
-              <ThemedText style={styles.newsIndex}>{index + 1}.</ThemedText>
-              <ThemedText style={styles.newsText}>{news}</ThemedText>
+          <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>
+            Latest AI News
+          </ThemedText>
+          {mockNews.slice(0, 5).map((news, index) => (
+            <ThemedView
+              key={index}
+              style={[
+                styles.newsItem,
+                {
+                  backgroundColor: colorScheme === "dark" ? "#2c2c2e" : "#fff",
+                  shadowColor: colorScheme === "dark" ? "#000" : "#000",
+                  shadowOpacity: colorScheme === "dark" ? 0.3 : 0.1,
+                },
+              ]}
+            >
+              <ThemedText style={[styles.newsIndex, { color: theme.tint }]}>
+                {index + 1}.
+              </ThemedText>
+              <ThemedText style={[styles.newsText, { color: theme.text }]}>
+                {news}
+              </ThemedText>
             </ThemedView>
           ))}
+        </ThemedView>
+
+        {/* Prompt Section */}
+        <ThemedView style={styles.promptSection}>
+          <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>
+            AI Prompts
+          </ThemedText>
+          <ThemedText style={[styles.promptDescription, { color: theme.icon }]}>
+            Select a prompt template to process the latest news
+          </ThemedText>
+
+          {processingPrompt && (
+            <ThemedView style={styles.processingContainer}>
+              <ActivityIndicator size="small" color={theme.tint} />
+              <ThemedText
+                style={[styles.processingText, { color: theme.tint }]}
+              >
+                Processing...
+              </ThemedText>
+            </ThemedView>
+          )}
+
+          <ThemedView style={styles.actionBar}>
+            {topicItems.length > 0 ? (
+              <ThemedView style={styles.topicButtonsGrid}>
+                {topicItems.map((topic) => (
+                  <TouchableOpacity
+                    key={topic.id}
+                    style={[
+                      styles.topicButton,
+                      { backgroundColor: theme.tint },
+                      processingPrompt && styles.topicButtonDisabled,
+                    ]}
+                    onPress={() => handlePromptPress(topic)}
+                    disabled={processingPrompt}
+                  >
+                    <ThemedText
+                      style={[
+                        styles.topicButtonText,
+                        {
+                          color:
+                            colorScheme === "dark" ? theme.background : "#fff",
+                        },
+                      ]}
+                    >
+                      {topic.label}
+                    </ThemedText>
+                  </TouchableOpacity>
+                ))}
+              </ThemedView>
+            ) : (
+              <ThemedView style={styles.emptyState}>
+                <ThemedText
+                  style={[styles.emptyStateText, { color: theme.icon }]}
+                >
+                  No prompt templates available. Add some in settings to get
+                  started.
+                </ThemedText>
+                <TouchableOpacity
+                  style={[
+                    styles.settingsLinkButton,
+                    { backgroundColor: theme.tint },
+                  ]}
+                  onPress={navigateToSettings}
+                >
+                  <ThemedText
+                    style={[
+                      styles.settingsLinkText,
+                      {
+                        color:
+                          colorScheme === "dark" ? theme.background : "#fff",
+                      },
+                    ]}
+                  >
+                    Go to Settings
+                  </ThemedText>
+                </TouchableOpacity>
+              </ThemedView>
+            )}
+          </ThemedView>
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
@@ -149,7 +246,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
   },
   scrollContent: {
     padding: 16,
@@ -162,7 +258,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: "#666",
   },
   header: {
     flexDirection: "row",
@@ -173,7 +268,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#1a1a1a",
   },
   settingsButton: {
     padding: 8,
@@ -185,31 +279,25 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 16,
-    color: "#1a1a1a",
   },
   newsItem: {
     flexDirection: "row",
     marginBottom: 12,
-    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   newsIndex: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#007AFF",
     marginRight: 12,
     minWidth: 24,
   },
   newsText: {
     fontSize: 16,
     lineHeight: 22,
-    color: "#333",
     flex: 1,
   },
   promptSection: {
@@ -217,7 +305,6 @@ const styles = StyleSheet.create({
   },
   promptDescription: {
     fontSize: 16,
-    color: "#666",
     marginBottom: 20,
     textAlign: "center",
   },
@@ -230,7 +317,6 @@ const styles = StyleSheet.create({
   processingText: {
     marginLeft: 8,
     fontSize: 16,
-    color: "#007AFF",
   },
   actionBar: {
     flexDirection: "row",
@@ -245,22 +331,22 @@ const styles = StyleSheet.create({
   },
   topicButton: {
     alignItems: "center",
-    paddingHorizontal: 2,
-    borderRadius: 4,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderRadius: 12,
     justifyContent: "center",
-    backgroundColor: "#007AFF",
-    shadowColor: "#000",
+    minHeight: 80,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 5,
+    margin: 4,
   },
   topicButtonDisabled: {
     opacity: 0.6,
   },
   topicButtonText: {
-    color: "#fff",
-    fontSize: 10,
+    fontSize: 18,
     fontWeight: "600",
     textAlign: "center",
   },
@@ -270,18 +356,15 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontSize: 16,
-    color: "#666",
     textAlign: "center",
     marginBottom: 16,
   },
   settingsLinkButton: {
-    backgroundColor: "#007AFF",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   settingsLinkText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -298,13 +381,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: "#007AFF",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },

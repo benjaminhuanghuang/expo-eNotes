@@ -8,11 +8,13 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  useColorScheme,
 } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { Colors } from "@/constants/Colors";
 import {
   useDeleteTopicItem,
   useSaveTopicItem,
@@ -22,6 +24,8 @@ import type { Topic } from "@/services/topicService";
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? "light"];
   const [editingItem, setEditingItem] = useState<Topic | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newLabel, setNewLabel] = useState("");
@@ -159,14 +163,19 @@ export default function SettingsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.background }]}
+    >
       <ScrollView style={styles.container}>
         {/* Header */}
         <ThemedView style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={goBack}>
-            <IconSymbol name="chevron.left" size={24} color="#007AFF" />
+            <IconSymbol name="chevron.left" size={24} color={theme.tint} />
           </TouchableOpacity>
-          <ThemedText type="title" style={styles.title}>
+          <ThemedText
+            type="title"
+            style={[styles.title, { color: theme.text }]}
+          >
             Prompt Settings
           </ThemedText>
           <ThemedView style={styles.placeholder} />
@@ -193,22 +202,39 @@ export default function SettingsScreen() {
             <ThemedView style={styles.inputGroup}>
               <ThemedText style={styles.inputLabel}>Label</ThemedText>
               <TextInput
-                style={styles.textInput}
+                style={[
+                  styles.textInput,
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#2c2c2e" : "#fff",
+                    color: theme.text,
+                    borderColor: colorScheme === "dark" ? "#3c3c3e" : "#ddd",
+                  },
+                ]}
                 value={newLabel}
                 onChangeText={setNewLabel}
                 placeholder="Enter button label"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.icon}
               />
             </ThemedView>
 
             <ThemedView style={styles.inputGroup}>
               <ThemedText style={styles.inputLabel}>Prompt</ThemedText>
               <TextInput
-                style={[styles.textInput, styles.textArea]}
+                style={[
+                  styles.textInput,
+                  styles.textArea,
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#2c2c2e" : "#fff",
+                    color: theme.text,
+                    borderColor: colorScheme === "dark" ? "#3c3c3e" : "#ddd",
+                  },
+                ]}
                 value={newPrompt}
                 onChangeText={setNewPrompt}
                 placeholder="Enter AI prompt text"
-                placeholderTextColor="#999"
+                placeholderTextColor={theme.icon}
                 multiline
                 numberOfLines={4}
               />
@@ -294,7 +320,6 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
   },
   container: {
     flex: 1,
@@ -308,7 +333,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: "#666",
   },
   errorContainer: {
     flex: 1,
