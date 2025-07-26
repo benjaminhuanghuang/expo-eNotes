@@ -37,24 +37,19 @@ export default function HomeScreen() {
   const [promptItems] = useState<PromptItem[]>([
     {
       id: "1",
-      label: "Summarize",
+      label: "News",
       prompt: "Please summarize the following news in one clear sentence",
     },
     {
       id: "2",
-      label: "Explain",
+      label: "Tech",
       prompt:
         "Please explain this news story in simple terms for better understanding",
     },
     {
       id: "3",
-      label: "Analyze",
+      label: "Finance",
       prompt: "Please analyze the key implications and impact of this news",
-    },
-    {
-      id: "4",
-      label: "Key Points",
-      prompt: "Please extract the main key points from this news story",
     },
   ]);
 
@@ -227,29 +222,6 @@ export default function HomeScreen() {
             <IconSymbol size={24} name="gear" color="#007AFF" />
           </TouchableOpacity>
         </ThemedView>
-
-        {/* AI Response Display */}
-        {processingPrompt && (
-          <ThemedView style={styles.responseContainer}>
-            <ActivityIndicator size="small" color="#007AFF" />
-            <ThemedText style={styles.loadingText}>
-              Processing with AI...
-            </ThemedText>
-          </ThemedView>
-        )}
-
-        {geminiResponse && !processingPrompt && (
-          <ThemedView style={styles.responseContainer}>
-            <ThemedView>
-              <ThemedText type="defaultSemiBold" style={styles.responseTitle}>
-                AI Response:
-              </ThemedText>
-              <ThemedText style={styles.responseText}>
-                {geminiResponse}
-              </ThemedText>
-            </ThemedView>
-          </ThemedView>
-        )}
       </ThemedView>
       {/* Top 10 News Today */}
       <ThemedView style={styles.newsSection}>
@@ -331,8 +303,7 @@ const styles = StyleSheet.create({
   promptButton: {
     backgroundColor: "#007AFF",
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 2,
     minWidth: 80,
     alignItems: "center",
   },
