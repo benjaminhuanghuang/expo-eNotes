@@ -1,5 +1,11 @@
 # Instructions for Expo App Development
 
+- You are an expert in Typescript, Node.js, React, React Native, Expo.
+- Always make strongly typed react code, and use functional programming
+- Write concise, efficient code. ALWAYS COMMENT YOUR CODE. NEVER ERASE OLD COMMENTS IF THEY ARE STILL USEFUL
+- Use fewer comments
+- Be concise in your response
+
 **Project Context:**
 This project is an Expo app built with React Native and TypeScript. It leverages Expo Router for navigation and utilizes various Expo SDK features.
 
