@@ -8,7 +8,6 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import { mockFirebaseService } from "./mockFirebaseService";
 
 export interface Topic {
   id: string;
@@ -40,8 +39,7 @@ export const getTopics = async (): Promise<Topic[]> => {
     return items;
   } catch (error) {
     console.error("Error fetching topics from Firebase:", error);
-    console.log("Falling back to mock service...");
-    return mockFirebaseService.getTopics();
+    return []; // Return empty array on error
   }
 };
 
@@ -61,12 +59,8 @@ export const saveTopic = async (item: Topic): Promise<void> => {
       }),
       timeoutPromise,
     ]);
-
-    console.log("Successfully saved topic to Firebase");
   } catch (error) {
     console.error("Error saving topic to Firebase:", error);
-    console.log("Falling back to mock service...");
-    return mockFirebaseService.saveTopic(item);
   }
 };
 
@@ -83,12 +77,8 @@ export const deleteTopic = async (id: string): Promise<void> => {
       deleteDoc(doc(db, COLLECTION_NAME, id)),
       timeoutPromise,
     ]);
-
-    console.log("Successfully deleted topic from Firebase");
   } catch (error) {
     console.error("Error deleting topic from Firebase:", error);
-    console.log("Falling back to mock service...");
-    return mockFirebaseService.deleteTopic(id);
   }
 };
 
@@ -108,6 +98,5 @@ export const saveAllTopics = async (items: Topic[]): Promise<void> => {
     await batch.commit();
   } catch (error) {
     console.error("Error saving all topics:", error);
-    throw error;
   }
 };
