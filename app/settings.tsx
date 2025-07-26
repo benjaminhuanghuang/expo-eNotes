@@ -151,9 +151,11 @@ export default function SettingsScreen() {
   // Handle loading state
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView
+        style={[styles.safeArea, { backgroundColor: theme.background }]}
+      >
         <ThemedView style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={theme.tint} />
           <ThemedText style={styles.loadingText}>
             Loading settings...
           </ThemedText>
@@ -172,30 +174,40 @@ export default function SettingsScreen() {
           <TouchableOpacity style={styles.backButton} onPress={goBack}>
             <IconSymbol name="chevron.left" size={24} color={theme.tint} />
           </TouchableOpacity>
-          <ThemedText
-            type="title"
-            style={[styles.title, { color: theme.text }]}
-          >
-            Prompt Settings
-          </ThemedText>
+          {/* Add New Prompt Button */}
+          {!showAddForm && !editingItem && (
+            <TouchableOpacity
+              style={[styles.addButton, { backgroundColor: theme.tint }]}
+              onPress={() => setShowAddForm(true)}
+            >
+              <IconSymbol
+                name="plus"
+                size={20}
+                color={colorScheme === "dark" ? theme.background : "#fff"}
+              />
+              <ThemedText
+                style={[styles.addButtonText, { color: theme.background }]}
+              >
+                Add New Prompt
+              </ThemedText>
+            </TouchableOpacity>
+          )}
           <ThemedView style={styles.placeholder} />
         </ThemedView>
 
-        {/* Add New Prompt Button */}
-        {!showAddForm && !editingItem && (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowAddForm(true)}
-          >
-            <IconSymbol name="plus" size={20} color="#fff" />
-            <ThemedText style={styles.addButtonText}>Add New Prompt</ThemedText>
-          </TouchableOpacity>
-        )}
-
         {/* Add/Edit Form */}
         {(showAddForm || editingItem) && (
-          <ThemedView style={styles.form}>
-            <ThemedText style={styles.formTitle}>
+          <ThemedView
+            style={[
+              styles.form,
+              {
+                backgroundColor: colorScheme === "dark" ? "#2c2c2e" : "#fff",
+                shadowColor: colorScheme === "dark" ? "#000" : "#000",
+                shadowOpacity: colorScheme === "dark" ? 0.3 : 0.1,
+              },
+            ]}
+          >
+            <ThemedText style={[styles.formTitle, { color: theme.text }]}>
               {editingItem ? "Edit Prompt" : "Add New Prompt"}
             </ThemedText>
 
@@ -242,22 +254,44 @@ export default function SettingsScreen() {
 
             <ThemedView style={styles.formButtons}>
               <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
+                style={[
+                  styles.button,
+                  styles.cancelButton,
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#3c3c3e" : "#f0f0f0",
+                  },
+                ]}
                 onPress={cancelEdit}
                 disabled={saving}
               >
-                <ThemedText style={styles.cancelButtonText}>Cancel</ThemedText>
+                <ThemedText
+                  style={[styles.cancelButtonText, { color: theme.text }]}
+                >
+                  Cancel
+                </ThemedText>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.button, styles.saveButton]}
+                style={[
+                  styles.button,
+                  styles.saveButton,
+                  { backgroundColor: theme.tint },
+                ]}
                 onPress={editingItem ? updateItem : addItem}
                 disabled={saving}
               >
                 {saving ? (
-                  <ActivityIndicator size="small" color="#fff" />
+                  <ActivityIndicator size="small" color={theme.text} />
                 ) : (
-                  <ThemedText style={styles.saveButtonText}>
+                  <ThemedText
+                    style={[
+                      styles.saveButtonText,
+                      {
+                        color: colorScheme === "dark" ? theme.text : "#fff",
+                      },
+                    ]}
+                  >
                     {editingItem ? "Update" : "Add"}
                   </ThemedText>
                 )}
@@ -268,22 +302,42 @@ export default function SettingsScreen() {
 
         {/* Prompt Items List */}
         <ThemedView style={styles.listContainer}>
-          <ThemedText style={styles.listTitle}>Current Prompts</ThemedText>
+          <ThemedText style={[styles.listTitle, { color: theme.text }]}>
+            Current Prompts
+          </ThemedText>
 
           {topicItems.length === 0 ? (
             <ThemedView style={styles.emptyState}>
-              <ThemedText style={styles.emptyStateText}>
+              <ThemedText
+                style={[styles.emptyStateText, { color: theme.icon }]}
+              >
                 No prompts available. Add your first prompt above.
               </ThemedText>
             </ThemedView>
           ) : (
             topicItems.map((item: Topic) => (
-              <ThemedView key={item.id} style={styles.promptItem}>
+              <ThemedView
+                key={item.id}
+                style={[
+                  styles.promptItem,
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#2c2c2e" : "#fff",
+                    shadowColor: colorScheme === "dark" ? "#000" : "#000",
+                    shadowOpacity: colorScheme === "dark" ? 0.3 : 0.1,
+                  },
+                ]}
+              >
                 <ThemedView style={styles.promptInfo}>
-                  <ThemedText style={styles.promptLabel}>
+                  <ThemedText
+                    style={[styles.promptLabel, { color: theme.text }]}
+                  >
                     {item.label}
                   </ThemedText>
-                  <ThemedText style={styles.promptText} numberOfLines={2}>
+                  <ThemedText
+                    style={[styles.promptText, { color: theme.icon }]}
+                    numberOfLines={2}
+                  >
                     {item.prompt}
                   </ThemedText>
                 </ThemedView>
@@ -294,7 +348,7 @@ export default function SettingsScreen() {
                     onPress={() => editItem(item)}
                     disabled={saving}
                   >
-                    <IconSymbol name="pencil" size={16} color="#007AFF" />
+                    <IconSymbol name="pencil" size={16} color={theme.tint} />
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -369,7 +423,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1a1a1a",
   },
   placeholder: {
     width: 40,
@@ -378,25 +431,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#007AFF",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 24,
+    padding: 4,
+    borderRadius: 4,
   },
   addButtonText: {
-    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
     marginLeft: 8,
   },
   form: {
-    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 12,
     marginBottom: 24,
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
@@ -404,7 +451,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 16,
-    color: "#1a1a1a",
   },
   inputGroup: {
     marginBottom: 16,
@@ -413,16 +459,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     marginBottom: 8,
-    color: "#333",
   },
   textInput: {
     borderWidth: 1,
-    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    backgroundColor: "#fff",
-    color: "#333",
   },
   textArea: {
     height: 100,
@@ -442,17 +484,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   cancelButton: {
-    backgroundColor: "#f8f9fa",
     borderWidth: 1,
-    borderColor: "#ddd",
   },
   cancelButtonText: {
-    color: "#666",
     fontSize: 16,
     fontWeight: "600",
   },
   saveButton: {
-    backgroundColor: "#007AFF",
+    // Uses theme.tint in component
   },
   saveButtonText: {
     color: "#fff",
@@ -466,23 +505,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 16,
-    color: "#1a1a1a",
   },
   emptyState: {
     alignItems: "center",
     padding: 32,
-    backgroundColor: "#fff",
     borderRadius: 12,
   },
   emptyStateText: {
     fontSize: 16,
-    color: "#666",
     textAlign: "center",
   },
   promptItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -500,11 +535,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
-    color: "#1a1a1a",
   },
   promptText: {
     fontSize: 14,
-    color: "#666",
     lineHeight: 20,
   },
   promptActions: {
@@ -516,10 +549,10 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   editButton: {
-    backgroundColor: "#e3f2fd",
+    // Uses theme-based color in component
   },
   deleteButton: {
-    backgroundColor: "#ffebee",
+    // Uses theme-based color in component
   },
   bottomSpacing: {
     height: 50,
