@@ -17,7 +17,7 @@ export interface Topic {
 
 const COLLECTION_NAME = "topics";
 
-// Get all topics from Firebase or mock service
+// Get all topics from Firebase
 export const getTopics = async (): Promise<Topic[]> => {
   try {
     console.log("Attempting to fetch from Firebase...");
@@ -43,7 +43,7 @@ export const getTopics = async (): Promise<Topic[]> => {
   }
 };
 
-// Save a single topic to Firebase or mock service
+// Save a single topic to Firebase
 export const saveTopic = async (item: Topic): Promise<void> => {
   try {
     console.log("Attempting to save to Firebase...", item.label);
@@ -64,7 +64,7 @@ export const saveTopic = async (item: Topic): Promise<void> => {
   }
 };
 
-// Delete a topic from Firebase or mock service
+// Delete a topic from Firebase
 export const deleteTopic = async (id: string): Promise<void> => {
   try {
     console.log("Attempting to delete from Firebase...", id);
@@ -82,7 +82,7 @@ export const deleteTopic = async (id: string): Promise<void> => {
   }
 };
 
-// Save all topics to Firebase or mock service (for reordering)
+// Save all topics to Firebase
 export const saveAllTopics = async (items: Topic[]): Promise<void> => {
   try {
     const batch = writeBatch(db);
