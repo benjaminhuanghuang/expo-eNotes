@@ -127,7 +127,7 @@ export default function HomeScreen() {
           {/* Empty State */}
           {topicItems.length === 0 && !loadingTopics && (
             <ThemedText style={styles.emptyStateText}>
-              No topics available. Go to Settings to add some.
+              No topics available. Go to Settings to add.
             </ThemedText>
           )}
           {/* Settings Button */}

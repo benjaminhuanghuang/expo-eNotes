@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deleteTopic,
   getTopics,
-  initializeDefaultTopics,
   saveAllTopics,
   saveTopic,
   type Topic,
@@ -23,13 +22,6 @@ export const useTopicItems = () => {
     queryKey: topicQueryKeys.lists(),
     queryFn: async () => {
       const items = await getTopics();
-
-      // If no items exist, initialize with defaults
-      if (items.length === 0) {
-        await initializeDefaultTopics();
-        return await getTopics();
-      }
-
       return items;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
