@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Alert, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -84,133 +90,143 @@ export default function WordsScreen() {
   });
 
   return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">My Words</ThemedText>
-        <TouchableOpacity style={styles.searchButton}>
-          <IconSymbol size={24} name="magnifyingglass" color="#4A90E2" />
-        </TouchableOpacity>
-      </ThemedView>
-
-      <ThemedView style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterButton, filter === "all" && styles.activeFilter]}
-          onPress={() => setFilter("all")}
-        >
-          <ThemedText
-            style={[
-              styles.filterText,
-              filter === "all" && styles.activeFilterText,
-            ]}
-          >
-            All Words
-          </ThemedText>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "recent" && styles.activeFilter,
-          ]}
-          onPress={() => setFilter("recent")}
-        >
-          <ThemedText
-            style={[
-              styles.filterText,
-              filter === "recent" && styles.activeFilterText,
-            ]}
-          >
-            Recent
-          </ThemedText>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "favorites" && styles.activeFilter,
-          ]}
-          onPress={() => setFilter("favorites")}
-        >
-          <ThemedText
-            style={[
-              styles.filterText,
-              filter === "favorites" && styles.activeFilterText,
-            ]}
-          >
-            Favorites
-          </ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
-
-      <ThemedView style={styles.statsRow}>
-        <ThemedView style={styles.statCard}>
-          <ThemedText style={styles.statNumber}>{savedNotes.length}</ThemedText>
-          <ThemedText style={styles.statLabel}>Total Words</ThemedText>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title">My Words</ThemedText>
+          <TouchableOpacity style={styles.searchButton}>
+            <IconSymbol size={24} name="magnifyingglass" color="#4A90E2" />
+          </TouchableOpacity>
         </ThemedView>
 
-        <ThemedView style={styles.statCard}>
-          <ThemedText style={styles.statNumber}>
-            {savedNotes.reduce((sum, note) => sum + note.wordCount, 0)}
-          </ThemedText>
-          <ThemedText style={styles.statLabel}>Words Learned</ThemedText>
-        </ThemedView>
-
-        <ThemedView style={styles.statCard}>
-          <ThemedText style={styles.statNumber}>7</ThemedText>
-          <ThemedText style={styles.statLabel}>Days Streak</ThemedText>
-        </ThemedView>
-      </ThemedView>
-
-      <ThemedView style={styles.notesSection}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          {filter === "all"
-            ? "All Words"
-            : filter === "recent"
-            ? "Recent Words"
-            : "Favorite Words"}
-        </ThemedText>
-
-        {filteredNotes.length === 0 ? (
-          <ThemedView style={styles.emptyState}>
-            <IconSymbol size={64} name="doc.text" color="#CCCCCC" />
-            <ThemedText style={styles.emptyText}>No words found</ThemedText>
-            <ThemedText style={styles.emptySubtext}>
-              Start reading and learning words to build your vocabulary!
-            </ThemedText>
-          </ThemedView>
-        ) : (
-          filteredNotes.map((note) => (
-            <TouchableOpacity
-              key={note.id}
-              style={styles.noteCard}
-              onPress={() => handleNotePress(note)}
+        <ThemedView style={styles.filterContainer}>
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "all" && styles.activeFilter,
+            ]}
+            onPress={() => setFilter("all")}
+          >
+            <ThemedText
+              style={[
+                styles.filterText,
+                filter === "all" && styles.activeFilterText,
+              ]}
             >
-              <ThemedView style={styles.noteHeader}>
-                <ThemedText type="defaultSemiBold" style={styles.noteTitle}>
-                  {note.title}
-                </ThemedText>
-                <IconSymbol size={16} name="chevron.right" color="#CCCCCC" />
-              </ThemedView>
+              All Words
+            </ThemedText>
+          </TouchableOpacity>
 
-              <ThemedText style={styles.noteContent} numberOfLines={2}>
-                {note.content}
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "recent" && styles.activeFilter,
+            ]}
+            onPress={() => setFilter("recent")}
+          >
+            <ThemedText
+              style={[
+                styles.filterText,
+                filter === "recent" && styles.activeFilterText,
+              ]}
+            >
+              Recent
+            </ThemedText>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "favorites" && styles.activeFilter,
+            ]}
+            onPress={() => setFilter("favorites")}
+          >
+            <ThemedText
+              style={[
+                styles.filterText,
+                filter === "favorites" && styles.activeFilterText,
+              ]}
+            >
+              Favorites
+            </ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+
+        <ThemedView style={styles.statsRow}>
+          <ThemedView style={styles.statCard}>
+            <ThemedText style={styles.statNumber}>
+              {savedNotes.length}
+            </ThemedText>
+            <ThemedText style={styles.statLabel}>Total Words</ThemedText>
+          </ThemedView>
+
+          <ThemedView style={styles.statCard}>
+            <ThemedText style={styles.statNumber}>
+              {savedNotes.reduce((sum, note) => sum + note.wordCount, 0)}
+            </ThemedText>
+            <ThemedText style={styles.statLabel}>Words Learned</ThemedText>
+          </ThemedView>
+
+          <ThemedView style={styles.statCard}>
+            <ThemedText style={styles.statNumber}>7</ThemedText>
+            <ThemedText style={styles.statLabel}>Days Streak</ThemedText>
+          </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.notesSection}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            {filter === "all"
+              ? "All Words"
+              : filter === "recent"
+              ? "Recent Words"
+              : "Favorite Words"}
+          </ThemedText>
+
+          {filteredNotes.length === 0 ? (
+            <ThemedView style={styles.emptyState}>
+              <IconSymbol size={64} name="doc.text" color="#CCCCCC" />
+              <ThemedText style={styles.emptyText}>No words found</ThemedText>
+              <ThemedText style={styles.emptySubtext}>
+                Start reading and learning words to build your vocabulary!
               </ThemedText>
+            </ThemedView>
+          ) : (
+            filteredNotes.map((note) => (
+              <TouchableOpacity
+                key={note.id}
+                style={styles.noteCard}
+                onPress={() => handleNotePress(note)}
+              >
+                <ThemedView style={styles.noteHeader}>
+                  <ThemedText type="defaultSemiBold" style={styles.noteTitle}>
+                    {note.title}
+                  </ThemedText>
+                  <IconSymbol size={16} name="chevron.right" color="#CCCCCC" />
+                </ThemedView>
 
-              <ThemedView style={styles.noteMeta}>
-                <ThemedText style={styles.noteDate}>{note.date}</ThemedText>
-                <ThemedText style={styles.noteWordCount}>
-                  {note.wordCount} words
+                <ThemedText style={styles.noteContent} numberOfLines={2}>
+                  {note.content}
                 </ThemedText>
-              </ThemedView>
-            </TouchableOpacity>
-          ))
-        )}
-      </ThemedView>
-    </ScrollView>
+
+                <ThemedView style={styles.noteMeta}>
+                  <ThemedText style={styles.noteDate}>{note.date}</ThemedText>
+                  <ThemedText style={styles.noteWordCount}>
+                    {note.wordCount} words
+                  </ThemedText>
+                </ThemedView>
+              </TouchableOpacity>
+            ))
+          )}
+        </ThemedView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     padding: 16,

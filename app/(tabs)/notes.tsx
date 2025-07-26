@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   Alert,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   TextInput,
@@ -32,82 +33,93 @@ export default function NotesScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <ThemedView style={styles.header}>
-        <ThemedText type="title">Reading & Notes</ThemedText>
-        <TouchableOpacity style={styles.saveButton} onPress={saveNotes}>
-          <IconSymbol size={20} name="square.and.arrow.down" color="#FFFFFF" />
-          <ThemedText style={styles.saveButtonText}>Save</ThemedText>
-        </TouchableOpacity>
-      </ThemedView>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container}>
+        <ThemedView style={styles.header}>
+          <ThemedText type="title">Reading & Notes</ThemedText>
+          <TouchableOpacity style={styles.saveButton} onPress={saveNotes}>
+            <IconSymbol
+              size={20}
+              name="square.and.arrow.down"
+              color="#FFFFFF"
+            />
+            <ThemedText style={styles.saveButtonText}>Save</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
 
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Article Text
-        </ThemedText>
-        <TextInput
-          style={styles.articleInput}
-          multiline
-          placeholder="Paste or type the English article you want to read here..."
-          value={article}
-          onChangeText={setArticle}
-          textAlignVertical="top"
-        />
+        <ThemedView style={styles.section}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Article Text
+          </ThemedText>
+          <TextInput
+            style={styles.articleInput}
+            multiline
+            placeholder="Paste or type the English article you want to read here..."
+            value={article}
+            onChangeText={setArticle}
+            textAlignVertical="top"
+          />
 
-        {article ? (
-          <ThemedView style={styles.readingArea}>
-            <ThemedText style={styles.readingText}>
-              {article.split(" ").map((word, index) => (
-                <ThemedText
-                  key={index}
-                  style={[
-                    styles.word,
-                    selectedWord === word.replace(/[.,!?;:]/, "") &&
-                      styles.selectedWord,
-                  ]}
-                  onPress={() => handleWordPress(word.replace(/[.,!?;:]/, ""))}
-                >
-                  {word}{" "}
-                </ThemedText>
-              ))}
-            </ThemedText>
-          </ThemedView>
-        ) : null}
-      </ThemedView>
+          {article ? (
+            <ThemedView style={styles.readingArea}>
+              <ThemedText style={styles.readingText}>
+                {article.split(" ").map((word, index) => (
+                  <ThemedText
+                    key={index}
+                    style={[
+                      styles.word,
+                      selectedWord === word.replace(/[.,!?;:]/, "") &&
+                        styles.selectedWord,
+                    ]}
+                    onPress={() =>
+                      handleWordPress(word.replace(/[.,!?;:]/, ""))
+                    }
+                  >
+                    {word}{" "}
+                  </ThemedText>
+                ))}
+              </ThemedText>
+            </ThemedView>
+          ) : null}
+        </ThemedView>
 
-      <ThemedView style={styles.section}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Your Notes
-        </ThemedText>
-        <TextInput
-          style={styles.notesInput}
-          multiline
-          placeholder="Write your notes, vocabulary, and observations here..."
-          value={notes}
-          onChangeText={setNotes}
-          textAlignVertical="top"
-        />
-      </ThemedView>
+        <ThemedView style={styles.section}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Your Notes
+          </ThemedText>
+          <TextInput
+            style={styles.notesInput}
+            multiline
+            placeholder="Write your notes, vocabulary, and observations here..."
+            value={notes}
+            onChangeText={setNotes}
+            textAlignVertical="top"
+          />
+        </ThemedView>
 
-      <ThemedView style={styles.tips}>
-        <ThemedText type="defaultSemiBold" style={styles.tipsTitle}>
-          💡 Tips:
-        </ThemedText>
-        <ThemedText style={styles.tipText}>
-          • Tap on any word in the article to select it
-        </ThemedText>
-        <ThemedText style={styles.tipText}>
-          • Use the notes section to write down new vocabulary
-        </ThemedText>
-        <ThemedText style={styles.tipText}>
-          • Save your work regularly using the Save button
-        </ThemedText>
-      </ThemedView>
-    </ScrollView>
+        <ThemedView style={styles.tips}>
+          <ThemedText type="defaultSemiBold" style={styles.tipsTitle}>
+            💡 Tips:
+          </ThemedText>
+          <ThemedText style={styles.tipText}>
+            • Tap on any word in the article to select it
+          </ThemedText>
+          <ThemedText style={styles.tipText}>
+            • Use the notes section to write down new vocabulary
+          </ThemedText>
+          <ThemedText style={styles.tipText}>
+            • Save your work regularly using the Save button
+          </ThemedText>
+        </ThemedView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     padding: 16,
