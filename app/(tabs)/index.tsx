@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  SafeAreaView,
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
 
-import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -201,34 +201,9 @@ export default function HomeScreen() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <ThemedView style={styles.headerContainer}>
-          <IconSymbol
-            size={80}
-            color="#808080"
-            name="newspaper.fill"
-            style={styles.headerImage}
-          />
-        </ThemedView>
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">AI News Dashboard</ThemedText>
-        <TouchableOpacity
-          onPress={navigateToSettings}
-          style={styles.settingsButton}
-        >
-          <IconSymbol size={24} name="gear" color="#007AFF" />
-        </TouchableOpacity>
-      </ThemedView>
-
-      {/* AI Prompt Buttons */}
+    <SafeAreaView>
+      {/* Prompt Buttons */}
       <ThemedView style={styles.promptSection}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          AI Analysis
-        </ThemedText>
         <ThemedView style={styles.promptGrid}>
           {promptItems.map((item) => (
             <TouchableOpacity
@@ -245,6 +220,12 @@ export default function HomeScreen() {
               </ThemedText>
             </TouchableOpacity>
           ))}
+          <TouchableOpacity
+            onPress={navigateToSettings}
+            style={styles.settingsButton}
+          >
+            <IconSymbol size={24} name="gear" color="#007AFF" />
+          </TouchableOpacity>
         </ThemedView>
 
         {/* AI Response Display */}
@@ -270,7 +251,6 @@ export default function HomeScreen() {
           </ThemedView>
         )}
       </ThemedView>
-
       {/* Top 10 News Today */}
       <ThemedView style={styles.newsSection}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -310,7 +290,7 @@ export default function HomeScreen() {
           </ThemedView>
         )}
       </ThemedView>
-    </ParallaxScrollView>
+    </SafeAreaView>
   );
 }
 
