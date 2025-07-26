@@ -14,9 +14,9 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import {
-  useDeletePromptItem,
-  usePromptItems,
-  useSavePromptItem,
+  useDeleteTopicItem,
+  useSaveTopicItem,
+  useTopicItems,
 } from "@/hooks/useTopicQueries";
 import type { Topic } from "@/services/topicService";
 
@@ -33,10 +33,10 @@ export default function SettingsScreen() {
     isLoading: loading,
     error: promptError,
     refetch: refetchPrompts,
-  } = usePromptItems();
+  } = useTopicItems();
 
-  const savePromptMutation = useSavePromptItem();
-  const deletePromptMutation = useDeletePromptItem();
+  const savePromptMutation = useSaveTopicItem();
+  const deletePromptMutation = useDeleteTopicItem();
 
   const saving = savePromptMutation.isPending || deletePromptMutation.isPending;
 

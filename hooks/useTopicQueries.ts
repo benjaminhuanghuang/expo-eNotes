@@ -37,8 +37,8 @@ export const useTopicItems = () => {
   });
 };
 
-// Hook to save a prompt item
-export const useSavePromptItem = () => {
+// Hook to save a topic item
+export const useSaveTopicItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -69,8 +69,8 @@ export const useDeleteTopicItem = () => {
   });
 };
 
-// Hook to save all prompt items (for reordering)
-export const useSaveAllPromptItems = () => {
+// Hook to save all topic items (for reordering)
+export const useSaveAllTopicItems = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
