@@ -152,27 +152,6 @@ export default function WordsScreen() {
           </TouchableOpacity>
         </ThemedView>
 
-        <ThemedView style={styles.statsRow}>
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>
-              {savedNotes.length}
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Total Words</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>
-              {savedNotes.reduce((sum, note) => sum + note.wordCount, 0)}
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Words Learned</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={styles.statCard}>
-            <ThemedText style={styles.statNumber}>7</ThemedText>
-            <ThemedText style={styles.statLabel}>Days Streak</ThemedText>
-          </ThemedView>
-        </ThemedView>
-
         <ThemedView style={styles.notesSection}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
             {filter === "all"
