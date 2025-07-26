@@ -13,7 +13,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { usePromptItems } from "@/hooks/usePromptQueries";
-import type { PromptItem } from "@/services/promptService";
+import type { Topic } from "@/services/topicService";
 
 const mockNews = [
   "OpenAI launches new GPT-4 model with improved reasoning",
@@ -40,7 +40,7 @@ export default function HomeScreen() {
     refetch: refetchPrompts,
   } = usePromptItems();
 
-  const handlePromptPress = async (prompt: PromptItem) => {
+  const handlePromptPress = async (prompt: Topic) => {
     try {
       setProcessingPrompt(true);
 
@@ -75,7 +75,7 @@ export default function HomeScreen() {
       <SafeAreaView style={styles.container}>
         <ThemedView style={styles.errorContainer}>
           <ThemedText style={styles.errorText}>
-            Failed to load prompts
+            Failed to load settings
           </ThemedText>
           <TouchableOpacity
             style={styles.retryButton}

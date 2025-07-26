@@ -1,7 +1,7 @@
-import { type PromptItem } from "./promptService";
+import { type Topic } from "./topicService";
 
 // Mock storage key for AsyncStorage alternative
-const STORAGE_KEY = "promptItems";
+const STORAGE_KEY = "topics";
 
 // Mock Firestore implementation using localStorage/AsyncStorage
 class MockFirestore {
@@ -49,8 +49,8 @@ const mockDb = new MockFirestore();
 
 // Mock Firebase functions
 export const mockFirebaseService = {
-  // Mock getPromptItems
-  async getPromptItems(): Promise<PromptItem[]> {
+  // Mock getTopics
+  async getTopics(): Promise<Topic[]> {
     try {
       const items = await mockDb.get(STORAGE_KEY);
       return items.sort((a, b) => a.order - b.order);
@@ -60,8 +60,8 @@ export const mockFirebaseService = {
     }
   },
 
-  // Mock savePromptItem
-  async savePromptItem(item: PromptItem): Promise<void> {
+  // Mock saveTopic
+  async saveTopic(item: Topic): Promise<void> {
     try {
       await mockDb.add(STORAGE_KEY, item);
     } catch (error) {
@@ -70,8 +70,8 @@ export const mockFirebaseService = {
     }
   },
 
-  // Mock deletePromptItem
-  async deletePromptItem(id: string): Promise<void> {
+  // Mock deleteTopic
+  async deleteTopic(id: string): Promise<void> {
     try {
       await mockDb.delete(STORAGE_KEY, id);
     } catch (error) {
@@ -80,8 +80,8 @@ export const mockFirebaseService = {
     }
   },
 
-  // Mock saveAllPromptItems
-  async saveAllPromptItems(items: PromptItem[]): Promise<void> {
+  // Mock saveAllTopics
+  async saveAllTopics(items: Topic[]): Promise<void> {
     try {
       await mockDb.set(STORAGE_KEY, items);
     } catch (error) {
@@ -90,13 +90,13 @@ export const mockFirebaseService = {
     }
   },
 
-  // Mock initializeDefaultPromptItems
-  async initializeDefaultPromptItems(): Promise<void> {
+  // Mock initializeDefaultTopics
+  async initializeDefaultTopics(): Promise<void> {
     try {
-      const existingItems = await this.getPromptItems();
+      const existingItems = await this.getTopics();
 
       if (existingItems.length === 0) {
-        const defaultItems: PromptItem[] = [
+        const defaultItems: Topic[] = [
           {
             id: "1",
             label: "Summarize",
@@ -129,7 +129,7 @@ export const mockFirebaseService = {
           },
         ];
 
-        await this.saveAllPromptItems(defaultItems);
+        await this.saveAllTopics(defaultItems);
       }
     } catch (error) {
       console.error("Mock Firebase: Error initializing default items", error);

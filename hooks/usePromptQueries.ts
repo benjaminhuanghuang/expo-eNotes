@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  deletePromptItem,
-  getPromptItems,
-  initializeDefaultPromptItems,
-  saveAllPromptItems,
-  savePromptItem,
-  type PromptItem,
-} from "../services/promptService";
+  deleteTopic,
+  getTopics,
+  initializeDefaultTopics,
+  saveAllTopics,
+  saveTopic,
+  type Topic,
+} from "../services/topicService";
 
 // Query keys
 export const promptQueryKeys = {
@@ -22,12 +22,12 @@ export const usePromptItems = () => {
   return useQuery({
     queryKey: promptQueryKeys.lists(),
     queryFn: async () => {
-      const items = await getPromptItems();
+      const items = await getTopics();
 
       // If no items exist, initialize with defaults
       if (items.length === 0) {
-        await initializeDefaultPromptItems();
-        return await getPromptItems();
+        await initializeDefaultTopics();
+        return await getTopics();
       }
 
       return items;
@@ -42,7 +42,7 @@ export const useSavePromptItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (item: PromptItem) => savePromptItem(item),
+    mutationFn: (item: Topic) => saveTopic(item),
     onSuccess: () => {
       // Invalidate and refetch prompt items
       queryClient.invalidateQueries({ queryKey: promptQueryKeys.lists() });
@@ -58,7 +58,7 @@ export const useDeletePromptItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deletePromptItem(id),
+    mutationFn: (id: string) => deleteTopic(id),
     onSuccess: () => {
       // Invalidate and refetch prompt items
       queryClient.invalidateQueries({ queryKey: promptQueryKeys.lists() });
@@ -74,7 +74,7 @@ export const useSaveAllPromptItems = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (items: PromptItem[]) => saveAllPromptItems(items),
+    mutationFn: (items: Topic[]) => saveAllTopics(items),
     onSuccess: () => {
       // Invalidate and refetch prompt items
       queryClient.invalidateQueries({ queryKey: promptQueryKeys.lists() });

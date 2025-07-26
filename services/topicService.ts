@@ -11,7 +11,7 @@ import {
 import { db } from "../config/firebase";
 import { mockFirebaseService } from "./mockFirebaseService";
 
-export interface PromptItem {
+export interface Topic {
   id: string;
   label: string;
   prompt: string;
@@ -19,7 +19,7 @@ export interface PromptItem {
   order: number;
 }
 
-const COLLECTION_NAME = "promptButtons";
+const COLLECTION_NAME = "topics";
 
 // Check if Firebase is properly configured
 const isFirebaseConfigured = () => {
@@ -36,32 +36,32 @@ const isFirebaseConfigured = () => {
   }
 };
 
-// Get all prompt items from Firebase or mock service
-export const getPromptItems = async (): Promise<PromptItem[]> => {
+// Get all topics from Firebase or mock service
+export const getTopics = async (): Promise<Topic[]> => {
   if (!isFirebaseConfigured()) {
-    return mockFirebaseService.getPromptItems();
+    return mockFirebaseService.getTopics();
   }
 
   try {
     const q = query(collection(db, COLLECTION_NAME), orderBy("order"));
     const querySnapshot = await getDocs(q);
-    const items: PromptItem[] = [];
+    const items: Topic[] = [];
 
     querySnapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() } as PromptItem);
+      items.push({ id: doc.id, ...doc.data() } as Topic);
     });
 
     return items;
   } catch (error) {
-    console.error("Error fetching prompt items:", error);
-    return getDefaultPromptItems();
+    console.error("Error fetching topics:", error);
+    return getDefaultTopics();
   }
 };
 
-// Save a single prompt item to Firebase or mock service
-export const savePromptItem = async (item: PromptItem): Promise<void> => {
+// Save a single topic to Firebase or mock service
+export const saveTopic = async (item: Topic): Promise<void> => {
   if (!isFirebaseConfigured()) {
-    return mockFirebaseService.savePromptItem(item);
+    return mockFirebaseService.saveTopic(item);
   }
 
   try {
@@ -72,31 +72,29 @@ export const savePromptItem = async (item: PromptItem): Promise<void> => {
       order: item.order,
     });
   } catch (error) {
-    console.error("Error saving prompt item:", error);
+    console.error("Error saving topic:", error);
     throw error;
   }
 };
 
-// Delete a prompt item from Firebase or mock service
-export const deletePromptItem = async (id: string): Promise<void> => {
+// Delete a topic from Firebase or mock service
+export const deleteTopic = async (id: string): Promise<void> => {
   if (!isFirebaseConfigured()) {
-    return mockFirebaseService.deletePromptItem(id);
+    return mockFirebaseService.deleteTopic(id);
   }
 
   try {
     await deleteDoc(doc(db, COLLECTION_NAME, id));
   } catch (error) {
-    console.error("Error deleting prompt item:", error);
+    console.error("Error deleting topic:", error);
     throw error;
   }
 };
 
-// Save all prompt items to Firebase or mock service (for reordering)
-export const saveAllPromptItems = async (
-  items: PromptItem[]
-): Promise<void> => {
+// Save all topics to Firebase or mock service (for reordering)
+export const saveAllTopics = async (items: Topic[]): Promise<void> => {
   if (!isFirebaseConfigured()) {
-    return mockFirebaseService.saveAllPromptItems(items);
+    return mockFirebaseService.saveAllTopics(items);
   }
 
   try {
@@ -114,31 +112,31 @@ export const saveAllPromptItems = async (
 
     await batch.commit();
   } catch (error) {
-    console.error("Error saving all prompt items:", error);
+    console.error("Error saving all topics:", error);
     throw error;
   }
 };
 
-// Initialize Firebase or mock service with default prompt items if none exist
-export const initializeDefaultPromptItems = async (): Promise<void> => {
+// Initialize Firebase or mock service with default topics if none exist
+export const initializeDefaultTopics = async (): Promise<void> => {
   if (!isFirebaseConfigured()) {
-    return mockFirebaseService.initializeDefaultPromptItems();
+    return mockFirebaseService.initializeDefaultTopics();
   }
 
   try {
-    const existingItems = await getPromptItems();
+    const existingItems = await getTopics();
 
     if (existingItems.length === 0) {
-      const defaultItems = getDefaultPromptItems();
-      await saveAllPromptItems(defaultItems);
+      const defaultItems = getDefaultTopics();
+      await saveAllTopics(defaultItems);
     }
   } catch (error) {
-    console.error("Error initializing default prompt items:", error);
+    console.error("Error initializing default topics:", error);
   }
 };
 
-// Get default prompt items
-export const getDefaultPromptItems = (): PromptItem[] => {
+// Get default topics
+export const getDefaultTopics = (): Topic[] => {
   return [
     {
       id: "1",

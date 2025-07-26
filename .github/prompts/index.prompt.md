@@ -3,29 +3,23 @@
 ## UI
 
 - The main view shows top 10 news today in one sentence
-- Show some buttons, click button will send a prompt to gemini and response will be displayed in the main view
+- Show some buttons, click button will send a prompt of the topic to gemini and response will be displayed in the main view
 - The last button is "settings", click it will enter a settings page.
 - The settings page shows a list of label and prompt. The label will be displayed in the button in index page, the prompt will be
   send to gemini when click button
 - User can add, edit, delete, reorder the items in settings page.
 
-## Prompt data
+## Settings data
 
-The settings for the prompt buttons has content
+The topic items are stored in Firebase Firestore, with the following structure:
 
-```js
-[
-  {
-    id: 1,
-    label: "news",
-    prompt: "Get top 10 news today",
-  },
-  {
-    id: 2,
-    label: "Tech",
-    prompt: "Get top 10 tech news today",
-  },
-];
+```json
+{
+  "id": "unique-id",
+  "label": "news",
+  "prompt": "Get top 10 news today",
+  "order": 1
+}
 ```
 
 when app staring, the data will be fetched from firebase and displayed as the prompt buttons in index page.

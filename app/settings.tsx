@@ -14,15 +14,15 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import {
+  useDeletePromptItem,
   usePromptItems,
   useSavePromptItem,
-  useDeletePromptItem,
 } from "@/hooks/usePromptQueries";
-import type { PromptItem } from "@/services/promptService";
+import type { Topic } from "@/services/topicService";
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const [editingItem, setEditingItem] = useState<PromptItem | null>(null);
+  const [editingItem, setEditingItem] = useState<Topic | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newPrompt, setNewPrompt] = useState("");
@@ -34,16 +34,16 @@ export default function SettingsScreen() {
     error: promptError,
     refetch: refetchPrompts,
   } = usePromptItems();
-  
+
   const savePromptMutation = useSavePromptItem();
   const deletePromptMutation = useDeletePromptItem();
-  
+
   const saving = savePromptMutation.isPending || deletePromptMutation.isPending;
 
   const addItem = async () => {
     if (newLabel.trim() && newPrompt.trim()) {
       try {
-        const newItem: PromptItem = {
+        const newItem: Topic = {
           id: Date.now().toString(),
           label: newLabel.trim(),
           prompt: newPrompt.trim(),
@@ -68,7 +68,7 @@ export default function SettingsScreen() {
   const updateItem = async () => {
     if (editingItem && newLabel.trim() && newPrompt.trim()) {
       try {
-        const updatedItem: PromptItem = {
+        const updatedItem: Topic = {
           ...editingItem,
           label: newLabel.trim(),
           prompt: newPrompt.trim(),
@@ -110,7 +110,7 @@ export default function SettingsScreen() {
     );
   };
 
-  const editItem = (item: PromptItem) => {
+  const editItem = (item: Topic) => {
     setEditingItem(item);
     setNewLabel(item.label);
     setNewPrompt(item.prompt);
@@ -133,10 +133,10 @@ export default function SettingsScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.errorContainer}>
           <ThemedText style={styles.errorText}>
-            Failed to load prompts
+            Failed to load settings
           </ThemedText>
-          <TouchableOpacity 
-            style={styles.retryButton} 
+          <TouchableOpacity
+            style={styles.retryButton}
             onPress={() => refetchPrompts()}
           >
             <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
@@ -152,7 +152,9 @@ export default function SettingsScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <ThemedText style={styles.loadingText}>Loading settings...</ThemedText>
+          <ThemedText style={styles.loadingText}>
+            Loading settings...
+          </ThemedText>
         </ThemedView>
       </SafeAreaView>
     );
@@ -243,7 +245,7 @@ export default function SettingsScreen() {
         {/* Prompt Items List */}
         <ThemedView style={styles.listContainer}>
           <ThemedText style={styles.listTitle}>Current Prompts</ThemedText>
-          
+
           {promptItems.length === 0 ? (
             <ThemedView style={styles.emptyState}>
               <ThemedText style={styles.emptyStateText}>
