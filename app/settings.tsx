@@ -1,6 +1,5 @@
-import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,61 +14,35 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import {
-  deletePromptItem,
-  getPromptItems,
-  initializeDefaultPromptItems,
-  savePromptItem,
-  type PromptItem,
-} from "@/services/promptService";
+  usePromptItems,
+  useSavePromptItem,
+  useDeletePromptItem,
+} from "@/hooks/usePromptQueries";
+import type { PromptItem } from "@/services/promptService";
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const [promptItems, setPromptItems] = useState<PromptItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [editingItem, setEditingItem] = useState<PromptItem | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newLabel, setNewLabel] = useState("");
   const [newPrompt, setNewPrompt] = useState("");
 
-  // Load prompt items from Firebase
-  const loadPromptItems = useCallback(async () => {
-    try {
-      setLoading(true);
-      const items = await getPromptItems();
-
-      if (items.length === 0) {
-        // Initialize with default items if none exist
-        await initializeDefaultPromptItems();
-        const defaultItems = await getPromptItems();
-        setPromptItems(defaultItems);
-      } else {
-        setPromptItems(items);
-      }
-    } catch (error) {
-      console.error("Error loading prompt items:", error);
-      Alert.alert("Error", "Failed to load prompt items");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Load prompts when component mounts
-  useEffect(() => {
-    loadPromptItems();
-  }, [loadPromptItems]);
-
-  // Reload prompts when screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      loadPromptItems();
-    }, [loadPromptItems])
-  );
+  // Use TanStack Query hooks
+  const {
+    data: promptItems = [],
+    isLoading: loading,
+    error: promptError,
+    refetch: refetchPrompts,
+  } = usePromptItems();
+  
+  const savePromptMutation = useSavePromptItem();
+  const deletePromptMutation = useDeletePromptItem();
+  
+  const saving = savePromptMutation.isPending || deletePromptMutation.isPending;
 
   const addItem = async () => {
     if (newLabel.trim() && newPrompt.trim()) {
       try {
-        setSaving(true);
         const newItem: PromptItem = {
           id: Date.now().toString(),
           label: newLabel.trim(),
@@ -78,8 +51,7 @@ export default function SettingsScreen() {
           order: promptItems.length,
         };
 
-        await savePromptItem(newItem);
-        await loadPromptItems(); // Reload to get updated data
+        await savePromptMutation.mutateAsync(newItem);
 
         setNewLabel("");
         setNewPrompt("");
@@ -87,8 +59,6 @@ export default function SettingsScreen() {
       } catch (error) {
         console.error("Error adding prompt item:", error);
         Alert.alert("Error", "Failed to add prompt item");
-      } finally {
-        setSaving(false);
       }
     } else {
       Alert.alert("Error", "Please fill in both label and prompt");
@@ -98,15 +68,13 @@ export default function SettingsScreen() {
   const updateItem = async () => {
     if (editingItem && newLabel.trim() && newPrompt.trim()) {
       try {
-        setSaving(true);
         const updatedItem: PromptItem = {
           ...editingItem,
           label: newLabel.trim(),
           prompt: newPrompt.trim(),
         };
 
-        await savePromptItem(updatedItem);
-        await loadPromptItems(); // Reload to get updated data
+        await savePromptMutation.mutateAsync(updatedItem);
 
         setEditingItem(null);
         setNewLabel("");
@@ -114,8 +82,6 @@ export default function SettingsScreen() {
       } catch (error) {
         console.error("Error updating prompt item:", error);
         Alert.alert("Error", "Failed to update prompt item");
-      } finally {
-        setSaving(false);
       }
     } else {
       Alert.alert("Error", "Please fill in both label and prompt");
@@ -133,8 +99,7 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await deletePromptItem(id);
-              await loadPromptItems(); // Reload to get updated data
+              await deletePromptMutation.mutateAsync(id);
             } catch (error) {
               console.error("Error deleting prompt item:", error);
               Alert.alert("Error", "Failed to delete prompt item");
@@ -149,22 +114,45 @@ export default function SettingsScreen() {
     setEditingItem(item);
     setNewLabel(item.label);
     setNewPrompt(item.prompt);
-    setShowAddForm(false);
   };
 
   const cancelEdit = () => {
     setEditingItem(null);
-    setShowAddForm(false);
     setNewLabel("");
     setNewPrompt("");
+    setShowAddForm(false);
   };
 
+  const goBack = () => {
+    router.back();
+  };
+
+  // Handle error state
+  if (promptError) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ThemedView style={styles.errorContainer}>
+          <ThemedText style={styles.errorText}>
+            Failed to load prompts
+          </ThemedText>
+          <TouchableOpacity 
+            style={styles.retryButton} 
+            onPress={() => refetchPrompts()}
+          >
+            <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      </SafeAreaView>
+    );
+  }
+
+  // Handle loading state
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <ThemedText style={styles.loadingText}>Loading prompts...</ThemedText>
+          <ThemedText style={styles.loadingText}>Loading settings...</ThemedText>
         </ThemedView>
       </SafeAreaView>
     );
@@ -173,59 +161,60 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
+        {/* Header */}
         <ThemedView style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <IconSymbol size={24} name="chevron.left" color="#4A90E2" />
+          <TouchableOpacity style={styles.backButton} onPress={goBack}>
+            <IconSymbol name="chevron.left" size={24} color="#007AFF" />
           </TouchableOpacity>
-          <ThemedText type="title">Settings</ThemedText>
+          <ThemedText type="title" style={styles.title}>
+            Prompt Settings
+          </ThemedText>
+          <ThemedView style={styles.placeholder} />
+        </ThemedView>
+
+        {/* Add New Prompt Button */}
+        {!showAddForm && !editingItem && (
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => setShowAddForm(true)}
-            disabled={saving}
           >
-            <IconSymbol size={24} name="plus" color="#4A90E2" />
+            <IconSymbol name="plus" size={20} color="#fff" />
+            <ThemedText style={styles.addButtonText}>Add New Prompt</ThemedText>
           </TouchableOpacity>
-        </ThemedView>
+        )}
 
-        <ThemedText style={styles.description}>
-          Manage your AI prompt buttons. These will appear on the home screen
-          and send prompts to AI when clicked.
-        </ThemedText>
-
+        {/* Add/Edit Form */}
         {(showAddForm || editingItem) && (
-          <ThemedView style={styles.formContainer}>
-            <ThemedText type="subtitle" style={styles.formTitle}>
+          <ThemedView style={styles.form}>
+            <ThemedText style={styles.formTitle}>
               {editingItem ? "Edit Prompt" : "Add New Prompt"}
             </ThemedText>
 
-            <ThemedView style={styles.inputContainer}>
-              <ThemedText style={styles.label}>Label:</ThemedText>
+            <ThemedView style={styles.inputGroup}>
+              <ThemedText style={styles.inputLabel}>Label</ThemedText>
               <TextInput
-                style={styles.input}
+                style={styles.textInput}
                 value={newLabel}
                 onChangeText={setNewLabel}
-                placeholder="Enter button label (e.g., 'Summarize')"
+                placeholder="Enter button label"
                 placeholderTextColor="#999"
               />
             </ThemedView>
 
-            <ThemedView style={styles.inputContainer}>
-              <ThemedText style={styles.label}>Prompt:</ThemedText>
+            <ThemedView style={styles.inputGroup}>
+              <ThemedText style={styles.inputLabel}>Prompt</ThemedText>
               <TextInput
-                style={[styles.input, styles.textArea]}
+                style={[styles.textInput, styles.textArea]}
                 value={newPrompt}
                 onChangeText={setNewPrompt}
-                placeholder="Enter the prompt to send to AI"
+                placeholder="Enter AI prompt text"
                 placeholderTextColor="#999"
                 multiline
                 numberOfLines={4}
               />
             </ThemedView>
 
-            <ThemedView style={styles.buttonContainer}>
+            <ThemedView style={styles.formButtons}>
               <TouchableOpacity
                 style={[styles.button, styles.cancelButton]}
                 onPress={cancelEdit}
@@ -251,48 +240,52 @@ export default function SettingsScreen() {
           </ThemedView>
         )}
 
-        <ThemedView style={styles.itemsContainer}>
-          <ThemedText type="subtitle" style={styles.itemsTitle}>
-            Current Prompt Buttons
-          </ThemedText>
-
+        {/* Prompt Items List */}
+        <ThemedView style={styles.listContainer}>
+          <ThemedText style={styles.listTitle}>Current Prompts</ThemedText>
+          
           {promptItems.length === 0 ? (
             <ThemedView style={styles.emptyState}>
               <ThemedText style={styles.emptyStateText}>
-                No prompt buttons configured. Add one to get started!
+                No prompts available. Add your first prompt above.
               </ThemedText>
             </ThemedView>
           ) : (
-            promptItems.map((item, index) => (
-              <ThemedView key={item.id} style={styles.itemCard}>
-                <ThemedView style={styles.itemContent}>
-                  <ThemedText style={styles.itemLabel}>{item.label}</ThemedText>
-                  <ThemedText style={styles.itemPrompt} numberOfLines={2}>
+            promptItems.map((item) => (
+              <ThemedView key={item.id} style={styles.promptItem}>
+                <ThemedView style={styles.promptInfo}>
+                  <ThemedText style={styles.promptLabel}>
+                    {item.label}
+                  </ThemedText>
+                  <ThemedText style={styles.promptText} numberOfLines={2}>
                     {item.prompt}
                   </ThemedText>
                 </ThemedView>
 
-                <ThemedView style={styles.itemActions}>
+                <ThemedView style={styles.promptActions}>
                   <TouchableOpacity
-                    style={[styles.actionButton, styles.editActionButton]}
+                    style={[styles.actionButton, styles.editButton]}
                     onPress={() => editItem(item)}
                     disabled={saving}
                   >
-                    <IconSymbol size={18} name="pencil" color="#007AFF" />
+                    <IconSymbol name="pencil" size={16} color="#007AFF" />
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.actionButton, styles.deleteActionButton]}
+                    style={[styles.actionButton, styles.deleteButton]}
                     onPress={() => deleteItem(item.id)}
                     disabled={saving}
                   >
-                    <IconSymbol size={18} name="trash" color="#FF3B30" />
+                    <IconSymbol name="trash" size={16} color="#ff3b30" />
                   </TouchableOpacity>
                 </ThemedView>
               </ThemedView>
             ))
           )}
         </ThemedView>
+
+        {/* Bottom Spacing */}
+        <ThemedView style={styles.bottomSpacing} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -317,29 +310,65 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
   },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#ff3b30",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 20,
+    marginBottom: 24,
   },
   backButton: {
     padding: 8,
   },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#1a1a1a",
+  },
+  placeholder: {
+    width: 40,
+  },
   addButton: {
-    padding: 8,
-  },
-  description: {
-    fontSize: 16,
-    color: "#666",
-    textAlign: "center",
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  formContainer: {
-    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#007AFF",
+    padding: 16,
     borderRadius: 12,
+    marginBottom: 24,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  form: {
+    backgroundColor: "#fff",
     padding: 20,
+    borderRadius: 12,
     marginBottom: 24,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -353,16 +382,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: "#1a1a1a",
   },
-  inputContainer: {
+  inputGroup: {
     marginBottom: 16,
   },
-  label: {
-    fontSize: 16,
+  inputLabel: {
+    fontSize: 14,
     fontWeight: "500",
     marginBottom: 8,
     color: "#333",
   },
-  input: {
+  textInput: {
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
@@ -375,94 +404,100 @@ const styles = StyleSheet.create({
     height: 100,
     textAlignVertical: "top",
   },
-  buttonContainer: {
+  formButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 8,
   },
   button: {
     flex: 1,
-    padding: 12,
+    padding: 14,
     borderRadius: 8,
     alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 4,
   },
   cancelButton: {
-    backgroundColor: "#f0f0f0",
-  },
-  saveButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#f8f9fa",
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   cancelButtonText: {
     color: "#666",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "600",
+  },
+  saveButton: {
+    backgroundColor: "#007AFF",
   },
   saveButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "600",
   },
-  itemsContainer: {
-    marginBottom: 32,
+  listContainer: {
+    marginBottom: 24,
   },
-  itemsTitle: {
+  listTitle: {
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 16,
     color: "#1a1a1a",
   },
   emptyState: {
+    alignItems: "center",
+    padding: 32,
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 32,
-    alignItems: "center",
   },
   emptyStateText: {
     fontSize: 16,
     color: "#666",
     textAlign: "center",
   },
-  itemCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+  promptItem: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  itemContent: {
+  promptInfo: {
     flex: 1,
     marginRight: 12,
   },
-  itemLabel: {
-    fontSize: 18,
+  promptLabel: {
+    fontSize: 16,
     fontWeight: "600",
-    color: "#1a1a1a",
     marginBottom: 4,
+    color: "#1a1a1a",
   },
-  itemPrompt: {
+  promptText: {
     fontSize: 14,
     color: "#666",
     lineHeight: 20,
   },
-  itemActions: {
+  promptActions: {
     flexDirection: "row",
   },
   actionButton: {
     padding: 8,
-    marginLeft: 8,
     borderRadius: 6,
+    marginLeft: 8,
   },
-  editActionButton: {
-    backgroundColor: "#E3F2FD",
+  editButton: {
+    backgroundColor: "#e3f2fd",
   },
-  deleteActionButton: {
-    backgroundColor: "#FFEBEE",
+  deleteButton: {
+    backgroundColor: "#ffebee",
+  },
+  bottomSpacing: {
+    height: 50,
   },
 });

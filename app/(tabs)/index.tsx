@@ -1,6 +1,5 @@
-import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -13,11 +12,8 @@ import {
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import {
-  getPromptItems,
-  initializeDefaultPromptItems,
-  type PromptItem,
-} from "@/services/promptService";
+import { usePromptItems } from "@/hooks/usePromptQueries";
+import type { PromptItem } from "@/services/promptService";
 
 const mockNews = [
   "OpenAI launches new GPT-4 model with improved reasoning",
@@ -34,43 +30,15 @@ const mockNews = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  const [promptItems, setPromptItems] = useState<PromptItem[]>([]);
-  const [loadingPrompts, setLoadingPrompts] = useState(true);
   const [processingPrompt, setProcessingPrompt] = useState(false);
 
-  // Load prompt items from Firebase
-  const loadPromptItems = useCallback(async () => {
-    try {
-      setLoadingPrompts(true);
-      const items = await getPromptItems();
-
-      if (items.length === 0) {
-        // Initialize with default items if none exist
-        await initializeDefaultPromptItems();
-        const defaultItems = await getPromptItems();
-        setPromptItems(defaultItems);
-      } else {
-        setPromptItems(items);
-      }
-    } catch (error) {
-      console.error("Error loading prompt items:", error);
-      Alert.alert("Error", "Failed to load prompt items");
-    } finally {
-      setLoadingPrompts(false);
-    }
-  }, []);
-
-  // Load prompts when component mounts
-  useEffect(() => {
-    loadPromptItems();
-  }, [loadPromptItems]);
-
-  // Reload prompts when screen comes into focus (after returning from settings)
-  useFocusEffect(
-    useCallback(() => {
-      loadPromptItems();
-    }, [loadPromptItems])
-  );
+  // Use TanStack Query to fetch prompt items
+  const {
+    data: promptItems = [],
+    isLoading: loadingPrompts,
+    error: promptError,
+    refetch: refetchPrompts,
+  } = usePromptItems();
 
   const handlePromptPress = async (prompt: PromptItem) => {
     try {
@@ -101,6 +69,26 @@ export default function HomeScreen() {
     router.push("/settings");
   };
 
+  // Handle error state
+  if (promptError) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ThemedView style={styles.errorContainer}>
+          <ThemedText style={styles.errorText}>
+            Failed to load prompts
+          </ThemedText>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => refetchPrompts()}
+          >
+            <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+      </SafeAreaView>
+    );
+  }
+
+  // Handle loading state
   if (loadingPrompts) {
     return (
       <SafeAreaView style={styles.container}>
@@ -327,6 +315,29 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   settingsLinkText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#ff3b30",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
