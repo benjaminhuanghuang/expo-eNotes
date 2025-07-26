@@ -1,159 +1,436 @@
 import { useRouter } from "expo-router";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
+interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  url: string;
+  publishedAt: string;
+}
+
+interface PromptItem {
+  id: string;
+  label: string;
+  prompt: string;
+}
+
 export default function HomeScreen() {
   const router = useRouter();
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [geminiResponse, setGeminiResponse] = useState<string>("");
+  const [processingPrompt, setProcessingPrompt] = useState(false);
+
+  // Mock prompt items - in a real app, this would be stored in AsyncStorage or a state management solution
+  const [promptItems] = useState<PromptItem[]>([
+    {
+      id: "1",
+      label: "Summarize",
+      prompt: "Please summarize the following news in one clear sentence",
+    },
+    {
+      id: "2",
+      label: "Explain",
+      prompt:
+        "Please explain this news story in simple terms for better understanding",
+    },
+    {
+      id: "3",
+      label: "Analyze",
+      prompt: "Please analyze the key implications and impact of this news",
+    },
+    {
+      id: "4",
+      label: "Key Points",
+      prompt: "Please extract the main key points from this news story",
+    },
+  ]);
+
+  useEffect(() => {
+    // Mock news data - in a real app, this would fetch from a news API
+    const mockNews: NewsItem[] = [
+      {
+        id: "1",
+        title: "AI Technology Breakthrough in Medical Diagnosis",
+        summary:
+          "Scientists develop new AI system that can detect diseases 95% more accurately than traditional methods.",
+        url: "https://example.com/news1",
+        publishedAt: "2024-01-15T10:00:00Z",
+      },
+      {
+        id: "2",
+        title: "Climate Change Summit Reaches Historic Agreement",
+        summary:
+          "World leaders agree on ambitious new targets to reduce carbon emissions by 50% within the next decade.",
+        url: "https://example.com/news2",
+        publishedAt: "2024-01-15T09:30:00Z",
+      },
+      {
+        id: "3",
+        title: "Space Mission Discovers Water on Mars",
+        summary:
+          "NASA's latest rover mission confirms the presence of liquid water beneath Mars' surface, raising hopes for life.",
+        url: "https://example.com/news3",
+        publishedAt: "2024-01-15T08:45:00Z",
+      },
+      {
+        id: "4",
+        title: "Electric Vehicle Adoption Surges Globally",
+        summary:
+          "Electric car sales increase by 300% year-over-year as charging infrastructure expands worldwide.",
+        url: "https://example.com/news4",
+        publishedAt: "2024-01-15T08:00:00Z",
+      },
+      {
+        id: "5",
+        title: "Quantum Computing Milestone Achieved",
+        summary:
+          "Tech giant announces breakthrough in quantum computing that could revolutionize data processing speeds.",
+        url: "https://example.com/news5",
+        publishedAt: "2024-01-15T07:30:00Z",
+      },
+      {
+        id: "6",
+        title: "Renewable Energy Costs Hit Record Low",
+        summary:
+          "Solar and wind energy costs drop to historic lows, making clean energy more accessible than ever.",
+        url: "https://example.com/news6",
+        publishedAt: "2024-01-15T07:00:00Z",
+      },
+      {
+        id: "7",
+        title: "Gene Therapy Shows Promise for Rare Diseases",
+        summary:
+          "Clinical trials demonstrate 80% success rate in treating previously incurable genetic conditions.",
+        url: "https://example.com/news7",
+        publishedAt: "2024-01-15T06:30:00Z",
+      },
+      {
+        id: "8",
+        title: "Ocean Cleanup Project Removes 100 Tons of Plastic",
+        summary:
+          "Revolutionary cleanup system successfully removes massive amounts of plastic waste from Pacific Ocean.",
+        url: "https://example.com/news8",
+        publishedAt: "2024-01-15T06:00:00Z",
+      },
+      {
+        id: "9",
+        title: "Breakthrough in Alzheimer's Research",
+        summary:
+          "New drug shows significant improvement in memory and cognitive function for early-stage patients.",
+        url: "https://example.com/news9",
+        publishedAt: "2024-01-15T05:30:00Z",
+      },
+      {
+        id: "10",
+        title: "Urban Farming Revolution Takes Off",
+        summary:
+          "Vertical farms in cities produce 30x more food per square meter while using 95% less water.",
+        url: "https://example.com/news10",
+        publishedAt: "2024-01-15T05:00:00Z",
+      },
+    ];
+
+    // Simulate loading news
+    const timer = setTimeout(() => {
+      setNews(mockNews);
+      setLoading(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handlePromptClick = async (promptItem: PromptItem) => {
+    setProcessingPrompt(true);
+    setGeminiResponse("");
+
+    try {
+      // Mock Gemini API response - in a real app, this would call the actual Gemini API
+      // const newsContext = news.slice(0, 3).map(item => `${item.title}: ${item.summary}`).join('\n\n');
+      // In a real implementation, this would be sent to Gemini API: `${promptItem.prompt}\n\nNews Context:\n${newsContext}`
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Mock response based on the prompt type
+      let response = "";
+      switch (promptItem.label.toLowerCase()) {
+        case "summarize":
+          response =
+            "Today's top stories focus on technological breakthroughs in AI and medical diagnosis, historic climate agreements, and space exploration discoveries on Mars.";
+          break;
+        case "explain":
+          response =
+            "The main news today covers scientific advances that could improve healthcare, environmental policies to combat climate change, and space discoveries that might help us understand life beyond Earth.";
+          break;
+        case "analyze":
+          response =
+            "These developments suggest a strong focus on sustainability and technology innovation. The convergence of AI, clean energy, and medical breakthroughs indicates significant societal shifts toward more efficient and healthier living.";
+          break;
+        case "key points":
+          response =
+            "• AI achieves 95% accuracy in medical diagnosis\n• Global climate agreement targets 50% emission reduction\n• Liquid water discovered on Mars\n• Electric vehicle sales surge 300%\n• Quantum computing breakthrough announced";
+          break;
+        default:
+          response =
+            "Based on today's news, there are significant developments in technology, climate action, and scientific discovery that could shape our future.";
+      }
+
+      setGeminiResponse(response);
+    } catch {
+      Alert.alert("Error", "Failed to get response from AI. Please try again.");
+    } finally {
+      setProcessingPrompt(false);
+    }
+  };
+
+  const navigateToSettings = () => {
+    router.push("/settings");
+  };
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: "#4A90E2", dark: "#2C5AA0" }}
+      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
-        <IconSymbol
-          size={200}
-          color="#FFFFFF"
-          name="book.pages"
-          style={styles.headerIcon}
-        />
+        <ThemedView style={styles.headerContainer}>
+          <IconSymbol
+            size={80}
+            color="#808080"
+            name="newspaper.fill"
+            style={styles.headerImage}
+          />
+        </ThemedView>
       }
     >
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">eNotes</ThemedText>
-        <ThemedText style={styles.subtitle}>
-          Read English & Take Notes
-        </ThemedText>
-      </ThemedView>
-
-      <ThemedView style={styles.quickActions}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Quick Actions
-        </ThemedText>
-
+        <ThemedText type="title">AI News Dashboard</ThemedText>
         <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => router.push("/notes")}
+          onPress={navigateToSettings}
+          style={styles.settingsButton}
         >
-          <IconSymbol size={32} name="plus.circle.fill" color="#4A90E2" />
-          <ThemedView style={styles.actionContent}>
-            <ThemedText type="defaultSemiBold">Start Reading</ThemedText>
-            <ThemedText style={styles.actionDescription}>
-              Begin a new reading session
-            </ThemedText>
-          </ThemedView>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => router.push("/words")}
-        >
-          <IconSymbol size={32} name="folder.fill" color="#4A90E2" />
-          <ThemedView style={styles.actionContent}>
-            <ThemedText type="defaultSemiBold">My Words</ThemedText>
-            <ThemedText style={styles.actionDescription}>
-              View saved words and vocabulary
-            </ThemedText>
-          </ThemedView>
+          <IconSymbol size={24} name="gear" color="#007AFF" />
         </TouchableOpacity>
       </ThemedView>
 
-      <ThemedView style={styles.statsContainer}>
+      {/* AI Prompt Buttons */}
+      <ThemedView style={styles.promptSection}>
         <ThemedText type="subtitle" style={styles.sectionTitle}>
-          Your Progress
+          AI Analysis
         </ThemedText>
-
-        <ThemedView style={styles.statsGrid}>
-          <ThemedView style={styles.statItem}>
-            <ThemedText type="title" style={styles.statNumber}>
-              0
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Articles Read</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={styles.statItem}>
-            <ThemedText type="title" style={styles.statNumber}>
-              0
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Notes Taken</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={styles.statItem}>
-            <ThemedText type="title" style={styles.statNumber}>
-              0
-            </ThemedText>
-            <ThemedText style={styles.statLabel}>Words Learned</ThemedText>
-          </ThemedView>
+        <ThemedView style={styles.promptGrid}>
+          {promptItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.promptButton,
+                processingPrompt && styles.promptButtonDisabled,
+              ]}
+              onPress={() => handlePromptClick(item)}
+              disabled={processingPrompt}
+            >
+              <ThemedText style={styles.promptButtonText}>
+                {item.label}
+              </ThemedText>
+            </TouchableOpacity>
+          ))}
         </ThemedView>
+
+        {/* AI Response Display */}
+        {processingPrompt && (
+          <ThemedView style={styles.responseContainer}>
+            <ActivityIndicator size="small" color="#007AFF" />
+            <ThemedText style={styles.loadingText}>
+              Processing with AI...
+            </ThemedText>
+          </ThemedView>
+        )}
+
+        {geminiResponse && !processingPrompt && (
+          <ThemedView style={styles.responseContainer}>
+            <ThemedView>
+              <ThemedText type="defaultSemiBold" style={styles.responseTitle}>
+                AI Response:
+              </ThemedText>
+              <ThemedText style={styles.responseText}>
+                {geminiResponse}
+              </ThemedText>
+            </ThemedView>
+          </ThemedView>
+        )}
+      </ThemedView>
+
+      {/* Top 10 News Today */}
+      <ThemedView style={styles.newsSection}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          Top 10 News Today
+        </ThemedText>
+
+        {loading ? (
+          <ThemedView style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+            <ThemedText style={styles.loadingText}>
+              Loading latest news...
+            </ThemedText>
+          </ThemedView>
+        ) : (
+          <ThemedView style={styles.newsList}>
+            {news.map((item, index) => (
+              <ThemedView key={item.id} style={styles.newsItem}>
+                <ThemedView style={styles.newsHeader}>
+                  <ThemedText style={styles.newsNumber}>
+                    #{index + 1}
+                  </ThemedText>
+                  <ThemedText style={styles.newsTime}>
+                    {new Date(item.publishedAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </ThemedText>
+                </ThemedView>
+                <ThemedText type="defaultSemiBold" style={styles.newsTitle}>
+                  {item.title}
+                </ThemedText>
+                <ThemedText style={styles.newsDescription}>
+                  {item.summary}
+                </ThemedText>
+              </ThemedView>
+            ))}
+          </ThemedView>
+        )}
       </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerIcon: {
+  headerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerImage: {
     alignSelf: "center",
-    marginTop: 50,
   },
   titleContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    justifyContent: "space-between",
     marginBottom: 24,
   },
-  subtitle: {
-    fontSize: 16,
-    opacity: 0.8,
-    textAlign: "center",
+  settingsButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
   },
   sectionTitle: {
+    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  promptSection: {
+    marginBottom: 32,
+  },
+  promptGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
     marginBottom: 16,
   },
-  quickActions: {
-    marginBottom: 32,
+  promptButton: {
+    backgroundColor: "#007AFF",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    minWidth: 80,
+    alignItems: "center",
   },
-  actionButton: {
+  promptButtonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  promptButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  responseContainer: {
+    backgroundColor: "rgba(0, 122, 255, 0.05)",
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    marginBottom: 12,
-    borderRadius: 12,
-    backgroundColor: "rgba(74, 144, 226, 0.1)",
-    gap: 16,
   },
-  actionContent: {
-    flex: 1,
+  responseTitle: {
+    marginBottom: 8,
+    fontSize: 16,
   },
-  actionDescription: {
+  responseText: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  loadingText: {
     fontSize: 14,
     opacity: 0.7,
-    marginTop: 4,
+    marginLeft: 8,
   },
-  statsContainer: {
+  newsSection: {
     marginBottom: 32,
   },
-  statsGrid: {
+  loadingContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 32,
+  },
+  newsList: {
     gap: 16,
   },
-  statItem: {
-    flex: 1,
-    alignItems: "center",
-    padding: 16,
+  newsItem: {
+    backgroundColor: "rgba(128, 128, 128, 0.05)",
     borderRadius: 12,
-    backgroundColor: "rgba(74, 144, 226, 0.05)",
+    padding: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: "#007AFF",
   },
-  statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#4A90E2",
+  newsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
   },
-  statLabel: {
+  newsNumber: {
     fontSize: 12,
-    opacity: 0.7,
-    textAlign: "center",
-    marginTop: 4,
+    fontWeight: "700",
+    color: "#007AFF",
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  newsTime: {
+    fontSize: 12,
+    opacity: 0.6,
+  },
+  newsTitle: {
+    fontSize: 16,
+    marginBottom: 6,
+    lineHeight: 22,
+  },
+  newsDescription: {
+    fontSize: 14,
+    opacity: 0.8,
+    lineHeight: 20,
   },
 });
