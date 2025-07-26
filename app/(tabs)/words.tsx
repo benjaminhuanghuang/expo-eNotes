@@ -11,126 +11,144 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
-interface SavedNote {
+interface Word {
   id: string;
-  title: string;
-  content: string;
+  spelling: string;
+  definition: string;
+  exampleSentence: string;
   date: string;
-  wordCount: number;
+  isRemembered: boolean;
+  isFavorite: boolean;
 }
 
 export default function WordsScreen() {
   // Mock data - in a real app, this would come from Firebase or local storage
-  const [savedNotes] = useState<SavedNote[]>([
+  const [words, setWords] = useState<Word[]>([
     {
       id: "1",
-      title: "Introduction to React Native",
-      content:
-        "React Native is a framework for building mobile applications using React...",
+      spelling: "Serendipity",
+      definition:
+        "The occurrence and development of events by chance in a happy or beneficial way",
+      exampleSentence:
+        "A fortunate stroke of serendipity brought the two old friends together after years apart.",
       date: "2024-01-15",
-      wordCount: 156,
+      isRemembered: false,
+      isFavorite: true,
     },
     {
       id: "2",
-      title: "Understanding TypeScript",
-      content:
-        "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript...",
+      spelling: "Ephemeral",
+      definition: "Lasting for a very short time; transitory",
+      exampleSentence:
+        "The beauty of cherry blossoms is ephemeral, lasting only a few weeks each spring.",
       date: "2024-01-14",
-      wordCount: 203,
+      isRemembered: true,
+      isFavorite: false,
     },
     {
       id: "3",
-      title: "Firebase Integration Guide",
-      content:
-        "Firebase provides a comprehensive platform for mobile and web applications...",
+      spelling: "Ubiquitous",
+      definition: "Present, appearing, or found everywhere",
+      exampleSentence: "Smartphones have become ubiquitous in modern society.",
       date: "2024-01-13",
-      wordCount: 178,
+      isRemembered: false,
+      isFavorite: true,
+    },
+    {
+      id: "4",
+      spelling: "Eloquent",
+      definition: "Fluent or persuasive in speaking or writing",
+      exampleSentence:
+        "Her eloquent speech moved the entire audience to tears.",
+      date: "2024-01-12",
+      isRemembered: true,
+      isFavorite: false,
     },
   ]);
 
-  const [filter, setFilter] = useState<"all" | "recent" | "favorites">("all");
+  const [filter, setFilter] = useState<"new" | "favorites" | "remembered">(
+    "new"
+  );
 
-  const handleNotePress = (note: SavedNote) => {
+  const handlePronunciation = (word: Word) => {
     Alert.alert(
-      note.title,
-      `Created: ${note.date}\nWords: ${
-        note.wordCount
-      }\n\n${note.content.substring(0, 100)}...`,
-      [
-        { text: "Edit", onPress: () => console.log("Edit note:", note.id) },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => handleDeleteNote(note.id),
-        },
-        { text: "Cancel", style: "cancel" },
-      ]
+      "Pronunciation",
+      `Playing pronunciation for "${word.spelling}"`
+    );
+    // In a real app, integrate with text-to-speech API
+  };
+
+  const handleMoreMeanings = (word: Word) => {
+    Alert.alert(
+      "More Meanings",
+      `Fetching additional meanings for "${word.spelling}"`
+    );
+    // In a real app, integrate with dictionary API
+  };
+
+  const toggleRemembered = (wordId: string) => {
+    setWords((prevWords) =>
+      prevWords.map((word) =>
+        word.id === wordId
+          ? { ...word, isRemembered: !word.isRemembered }
+          : word
+      )
     );
   };
 
-  const handleDeleteNote = (noteId: string) => {
-    Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
+  const toggleFavorite = (wordId: string) => {
+    setWords((prevWords) =>
+      prevWords.map((word) =>
+        word.id === wordId ? { ...word, isFavorite: !word.isFavorite } : word
+      )
+    );
+  };
+
+  const handleDeleteWord = (wordId: string) => {
+    Alert.alert("Delete Word", "Are you sure you want to delete this word?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "Delete",
         style: "destructive",
-        onPress: () => console.log("Deleted:", noteId),
+        onPress: () =>
+          setWords((prevWords) =>
+            prevWords.filter((word) => word.id !== wordId)
+          ),
       },
     ]);
   };
 
-  const filteredNotes = savedNotes.filter((note) => {
-    if (filter === "recent") {
-      const noteDate = new Date(note.date);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      return noteDate >= weekAgo;
+  const filteredWords = words.filter((word) => {
+    switch (filter) {
+      case "new":
+        return !word.isRemembered;
+      case "favorites":
+        return word.isFavorite;
+      case "remembered":
+        return word.isRemembered;
+      default:
+        return true;
     }
-    return true; // For 'all' and 'favorites' (favorites not implemented in mock)
   });
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
-        <ThemedView style={styles.header}>
-          <ThemedText type="title">My Words</ThemedText>
-          <TouchableOpacity style={styles.searchButton}>
-            <IconSymbol size={24} name="magnifyingglass" color="#4A90E2" />
-          </TouchableOpacity>
-        </ThemedView>
-
         <ThemedView style={styles.filterContainer}>
           <TouchableOpacity
             style={[
               styles.filterButton,
-              filter === "all" && styles.activeFilter,
+              filter === "new" && styles.activeFilter,
             ]}
-            onPress={() => setFilter("all")}
+            onPress={() => setFilter("new")}
           >
             <ThemedText
               style={[
                 styles.filterText,
-                filter === "all" && styles.activeFilterText,
+                filter === "new" && styles.activeFilterText,
               ]}
             >
-              All Words
-            </ThemedText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              filter === "recent" && styles.activeFilter,
-            ]}
-            onPress={() => setFilter("recent")}
-          >
-            <ThemedText
-              style={[
-                styles.filterText,
-                filter === "recent" && styles.activeFilterText,
-              ]}
-            >
-              Recent
+              New Words
             </ThemedText>
           </TouchableOpacity>
 
@@ -150,18 +168,56 @@ export default function WordsScreen() {
               Favorites
             </ThemedText>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.filterButton,
+              filter === "remembered" && styles.activeFilter,
+            ]}
+            onPress={() => setFilter("remembered")}
+          >
+            <ThemedText
+              style={[
+                styles.filterText,
+                filter === "remembered" && styles.activeFilterText,
+              ]}
+            >
+              Remembered
+            </ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
+
+        <ThemedView style={styles.statsRow}>
+          <ThemedView style={styles.statCard}>
+            <ThemedText style={styles.statNumber}>{words.length}</ThemedText>
+            <ThemedText style={styles.statLabel}>Total Words</ThemedText>
+          </ThemedView>
+
+          <ThemedView style={styles.statCard}>
+            <ThemedText style={styles.statNumber}>
+              {words.filter((word) => word.isFavorite).length}
+            </ThemedText>
+            <ThemedText style={styles.statLabel}>Favorites</ThemedText>
+          </ThemedView>
+
+          <ThemedView style={styles.statCard}>
+            <ThemedText style={styles.statNumber}>
+              {words.filter((word) => word.isRemembered).length}
+            </ThemedText>
+            <ThemedText style={styles.statLabel}>Remembered</ThemedText>
+          </ThemedView>
         </ThemedView>
 
         <ThemedView style={styles.notesSection}>
           <ThemedText type="subtitle" style={styles.sectionTitle}>
-            {filter === "all"
-              ? "All Words"
-              : filter === "recent"
-              ? "Recent Words"
-              : "Favorite Words"}
+            {filter === "new"
+              ? "New Words"
+              : filter === "favorites"
+              ? "Favorite Words"
+              : "Remembered Words"}
           </ThemedText>
 
-          {filteredNotes.length === 0 ? (
+          {filteredWords.length === 0 ? (
             <ThemedView style={styles.emptyState}>
               <IconSymbol size={64} name="doc.text" color="#CCCCCC" />
               <ThemedText style={styles.emptyText}>No words found</ThemedText>
@@ -170,30 +226,84 @@ export default function WordsScreen() {
               </ThemedText>
             </ThemedView>
           ) : (
-            filteredNotes.map((note) => (
-              <TouchableOpacity
-                key={note.id}
-                style={styles.noteCard}
-                onPress={() => handleNotePress(note)}
-              >
-                <ThemedView style={styles.noteHeader}>
-                  <ThemedText type="defaultSemiBold" style={styles.noteTitle}>
-                    {note.title}
-                  </ThemedText>
-                  <IconSymbol size={16} name="chevron.right" color="#CCCCCC" />
+            filteredWords.map((word) => (
+              <ThemedView key={word.id} style={styles.wordCard}>
+                <ThemedView style={styles.wordHeader}>
+                  <ThemedView style={styles.wordInfo}>
+                    <ThemedText
+                      type="defaultSemiBold"
+                      style={styles.wordSpelling}
+                    >
+                      {word.spelling}
+                    </ThemedText>
+                    <ThemedText style={styles.wordDate}>{word.date}</ThemedText>
+                  </ThemedView>
+
+                  <ThemedView style={styles.wordActions}>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handlePronunciation(word)}
+                    >
+                      <IconSymbol
+                        size={20}
+                        name="speaker.wave.2"
+                        color="#4A90E2"
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handleMoreMeanings(word)}
+                    >
+                      <IconSymbol size={20} name="book" color="#4A90E2" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => toggleRemembered(word.id)}
+                    >
+                      <IconSymbol
+                        size={20}
+                        name={
+                          word.isRemembered
+                            ? "checkmark.circle.fill"
+                            : "checkmark.circle"
+                        }
+                        color={word.isRemembered ? "#4CAF50" : "#CCCCCC"}
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => toggleFavorite(word.id)}
+                    >
+                      <IconSymbol
+                        size={20}
+                        name={word.isFavorite ? "heart.fill" : "heart"}
+                        color={word.isFavorite ? "#FF6B6B" : "#CCCCCC"}
+                      />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => handleDeleteWord(word.id)}
+                    >
+                      <IconSymbol size={20} name="trash" color="#FF6B6B" />
+                    </TouchableOpacity>
+                  </ThemedView>
                 </ThemedView>
 
-                <ThemedText style={styles.noteContent} numberOfLines={2}>
-                  {note.content}
+                <ThemedText style={styles.wordDefinition}>
+                  {word.definition}
                 </ThemedText>
 
-                <ThemedView style={styles.noteMeta}>
-                  <ThemedText style={styles.noteDate}>{note.date}</ThemedText>
-                  <ThemedText style={styles.noteWordCount}>
-                    {note.wordCount} words
+                <ThemedView style={styles.exampleContainer}>
+                  <ThemedText style={styles.exampleLabel}>Example:</ThemedText>
+                  <ThemedText style={styles.exampleSentence}>
+                    &ldquo;{word.exampleSentence}&rdquo;
                   </ThemedText>
                 </ThemedView>
-              </TouchableOpacity>
+              </ThemedView>
             ))
           )}
         </ThemedView>
@@ -294,6 +404,63 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     borderLeftWidth: 4,
     borderLeftColor: "#4A90E2",
+  },
+  wordCard: {
+    padding: 16,
+    backgroundColor: "rgba(74, 144, 226, 0.02)",
+    borderRadius: 8,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#4A90E2",
+  },
+  wordHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 12,
+  },
+  wordInfo: {
+    flex: 1,
+  },
+  wordSpelling: {
+    fontSize: 18,
+    color: "#4A90E2",
+    marginBottom: 4,
+  },
+  wordDate: {
+    fontSize: 12,
+    opacity: 0.5,
+  },
+  wordActions: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  actionButton: {
+    padding: 6,
+    borderRadius: 4,
+  },
+  wordDefinition: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 12,
+    opacity: 0.8,
+  },
+  exampleContainer: {
+    backgroundColor: "rgba(74, 144, 226, 0.05)",
+    padding: 12,
+    borderRadius: 6,
+  },
+  exampleLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#4A90E2",
+    marginBottom: 4,
+  },
+  exampleSentence: {
+    fontSize: 14,
+    fontStyle: "italic",
+    lineHeight: 18,
+    opacity: 0.8,
   },
   noteHeader: {
     flexDirection: "row",
