@@ -147,24 +147,6 @@ export default function HomeScreen() {
             </ThemedView>
           ))}
         </ThemedView>
-
-        <ThemedView style={styles.promptSection}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            AI Prompts
-          </ThemedText>
-          <ThemedText style={styles.promptDescription}>
-            Select a prompt to analyze the news with AI
-          </ThemedText>
-
-          {processingPrompt && (
-            <ThemedView style={styles.processingContainer}>
-              <ActivityIndicator size="small" color="#007AFF" />
-              <ThemedText style={styles.processingText}>
-                Processing...
-              </ThemedText>
-            </ThemedView>
-          )}
-        </ThemedView>
       </ScrollView>
     </SafeAreaView>
   );
