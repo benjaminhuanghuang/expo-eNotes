@@ -110,20 +110,51 @@ export default function HomeScreen() {
       </SafeAreaView>
     );
   }
-
+  /*
+  UI layout
+  actionBar
+    buttons for each topic,  settingsButton
+  contentSection
+  */
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header with Settings Button */}
-        <ThemedView style={styles.header}>
-          <ThemedText
-            type="title"
-            style={[styles.title, { color: theme.text }]}
-          >
-            eNotes
-          </ThemedText>
+        {/* Action Bar, contains buttons for each topic and settingsButton */}
+        <ThemedView style={styles.actionBar}>
+          {topicItems.length > 0 ? (
+            <ThemedView style={styles.topicButtonsGrid}>
+              {topicItems.map((topic) => (
+                <TouchableOpacity
+                  key={topic.id}
+                  style={[
+                    styles.topicButton,
+                    { backgroundColor: theme.tint },
+                    processingPrompt && styles.topicButtonDisabled,
+                  ]}
+                  onPress={() => handlePromptPress(topic)}
+                  disabled={processingPrompt}
+                >
+                  <ThemedText
+                    style={[
+                      styles.topicButtonText,
+                      {
+                        color:
+                          colorScheme === "dark" ? theme.background : "#fff",
+                      },
+                    ]}
+                  >
+                    {topic.label}
+                  </ThemedText>
+                </TouchableOpacity>
+              ))}
+            </ThemedView>
+          ) : (
+            <ThemedText style={[styles.emptyStateText, { color: theme.icon }]}>
+              No prompt templates available
+            </ThemedText>
+          )}
           <TouchableOpacity
             style={styles.settingsButton}
             onPress={navigateToSettings}
@@ -132,11 +163,8 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </ThemedView>
 
-        {/* Latest News Section */}
-        <ThemedView style={styles.newsSection}>
-          <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>
-            Latest AI News
-          </ThemedText>
+        {/* Content Section */}
+        <ThemedView style={styles.contentSection}>
           {mockNews.slice(0, 5).map((news, index) => (
             <ThemedView
               key={index}
@@ -149,94 +177,11 @@ export default function HomeScreen() {
                 },
               ]}
             >
-              <ThemedText style={[styles.newsIndex, { color: theme.tint }]}>
-                {index + 1}.
-              </ThemedText>
               <ThemedText style={[styles.newsText, { color: theme.text }]}>
                 {news}
               </ThemedText>
             </ThemedView>
           ))}
-        </ThemedView>
-
-        {/* Prompt Section */}
-        <ThemedView style={styles.promptSection}>
-          <ThemedText style={[styles.sectionTitle, { color: theme.text }]}>
-            AI Prompts
-          </ThemedText>
-          <ThemedText style={[styles.promptDescription, { color: theme.icon }]}>
-            Select a prompt template to process the latest news
-          </ThemedText>
-
-          {processingPrompt && (
-            <ThemedView style={styles.processingContainer}>
-              <ActivityIndicator size="small" color={theme.tint} />
-              <ThemedText
-                style={[styles.processingText, { color: theme.tint }]}
-              >
-                Processing...
-              </ThemedText>
-            </ThemedView>
-          )}
-
-          <ThemedView style={styles.actionBar}>
-            {topicItems.length > 0 ? (
-              <ThemedView style={styles.topicButtonsGrid}>
-                {topicItems.map((topic) => (
-                  <TouchableOpacity
-                    key={topic.id}
-                    style={[
-                      styles.topicButton,
-                      { backgroundColor: theme.tint },
-                      processingPrompt && styles.topicButtonDisabled,
-                    ]}
-                    onPress={() => handlePromptPress(topic)}
-                    disabled={processingPrompt}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.topicButtonText,
-                        {
-                          color:
-                            colorScheme === "dark" ? theme.background : "#fff",
-                        },
-                      ]}
-                    >
-                      {topic.label}
-                    </ThemedText>
-                  </TouchableOpacity>
-                ))}
-              </ThemedView>
-            ) : (
-              <ThemedView style={styles.emptyState}>
-                <ThemedText
-                  style={[styles.emptyStateText, { color: theme.icon }]}
-                >
-                  No prompt templates available. Add some in settings to get
-                  started.
-                </ThemedText>
-                <TouchableOpacity
-                  style={[
-                    styles.settingsLinkButton,
-                    { backgroundColor: theme.tint },
-                  ]}
-                  onPress={navigateToSettings}
-                >
-                  <ThemedText
-                    style={[
-                      styles.settingsLinkText,
-                      {
-                        color:
-                          colorScheme === "dark" ? theme.background : "#fff",
-                      },
-                    ]}
-                  >
-                    Go to Settings
-                  </ThemedText>
-                </TouchableOpacity>
-              </ThemedView>
-            )}
-          </ThemedView>
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
@@ -272,7 +217,7 @@ const styles = StyleSheet.create({
   settingsButton: {
     padding: 8,
   },
-  newsSection: {
+  contentSection: {
     marginBottom: 32,
   },
   sectionTitle: {
@@ -328,6 +273,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 4,
+    flex: 1,
   },
   topicButton: {
     alignItems: "center",
@@ -352,7 +298,6 @@ const styles = StyleSheet.create({
   },
   emptyState: {
     alignItems: "center",
-    padding: 32,
   },
   emptyStateText: {
     fontSize: 16,
