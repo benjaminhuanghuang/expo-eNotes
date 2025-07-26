@@ -19,6 +19,14 @@ Read english and take notes
   npm run web
 ```
 
+Trouble shooting
+
+```sh
+- Clear Metro cache: `npx expo start --clear`
+- Reinstall dependencies: `rm -rf node_modules && npm install`
+
+```
+
 ## Deploy
 
 ## To do
