@@ -3,7 +3,6 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  orderBy,
   query,
   setDoc,
   writeBatch,
@@ -15,97 +14,94 @@ export interface Topic {
   id: string;
   label: string;
   prompt: string;
-  color?: string;
-  order: number;
 }
 
 const COLLECTION_NAME = "topics";
 
-// Check if Firebase is properly configured
-const isFirebaseConfigured = () => {
-  try {
-    // Check if we have real Firebase config (not placeholder values)
-    const config = db.app.options;
-    return (
-      config.projectId &&
-      config.projectId !== "your-project-id" &&
-      config.apiKey !== "your-api-key"
-    );
-  } catch {
-    return false;
-  }
-};
-
 // Get all topics from Firebase or mock service
 export const getTopics = async (): Promise<Topic[]> => {
-  if (!isFirebaseConfigured()) {
-    return mockFirebaseService.getTopics();
-  }
-
   try {
-    const q = query(collection(db, COLLECTION_NAME), orderBy("order"));
-    const querySnapshot = await getDocs(q);
-    const items: Topic[] = [];
+    console.log("Attempting to fetch from Firebase...");
+    const q = query(collection(db, COLLECTION_NAME));
 
+    // Add timeout to prevent hanging
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Firebase timeout")), 10000);
+    });
+
+    const querySnapshot = await Promise.race([getDocs(q), timeoutPromise]);
+
+    const items: Topic[] = [];
     querySnapshot.forEach((doc) => {
       items.push({ id: doc.id, ...doc.data() } as Topic);
     });
 
+    console.log(`Successfully fetched ${items.length} topics from Firebase`);
     return items;
   } catch (error) {
-    console.error("Error fetching topics:", error);
-    return getDefaultTopics();
+    console.error("Error fetching topics from Firebase:", error);
+    console.log("Falling back to mock service...");
+    return mockFirebaseService.getTopics();
   }
 };
 
 // Save a single topic to Firebase or mock service
 export const saveTopic = async (item: Topic): Promise<void> => {
-  if (!isFirebaseConfigured()) {
-    return mockFirebaseService.saveTopic(item);
-  }
-
   try {
-    await setDoc(doc(db, COLLECTION_NAME, item.id), {
-      label: item.label,
-      prompt: item.prompt,
-      order: item.order,
+    console.log("Attempting to save to Firebase...", item.label);
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Firebase save timeout")), 10000);
     });
+
+    await Promise.race([
+      setDoc(doc(db, COLLECTION_NAME, item.id), {
+        label: item.label,
+        prompt: item.prompt,
+      }),
+      timeoutPromise,
+    ]);
+
+    console.log("Successfully saved topic to Firebase");
   } catch (error) {
-    console.error("Error saving topic:", error);
-    throw error;
+    console.error("Error saving topic to Firebase:", error);
+    console.log("Falling back to mock service...");
+    return mockFirebaseService.saveTopic(item);
   }
 };
 
 // Delete a topic from Firebase or mock service
 export const deleteTopic = async (id: string): Promise<void> => {
-  if (!isFirebaseConfigured()) {
-    return mockFirebaseService.deleteTopic(id);
-  }
-
   try {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    console.log("Attempting to delete from Firebase...", id);
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Firebase delete timeout")), 10000);
+    });
+
+    await Promise.race([
+      deleteDoc(doc(db, COLLECTION_NAME, id)),
+      timeoutPromise,
+    ]);
+
+    console.log("Successfully deleted topic from Firebase");
   } catch (error) {
-    console.error("Error deleting topic:", error);
-    throw error;
+    console.error("Error deleting topic from Firebase:", error);
+    console.log("Falling back to mock service...");
+    return mockFirebaseService.deleteTopic(id);
   }
 };
 
 // Save all topics to Firebase or mock service (for reordering)
 export const saveAllTopics = async (items: Topic[]): Promise<void> => {
-  if (!isFirebaseConfigured()) {
-    return mockFirebaseService.saveAllTopics(items);
-  }
-
   try {
     const batch = writeBatch(db);
 
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       const docRef = doc(db, COLLECTION_NAME, item.id);
       batch.set(docRef, {
         label: item.label,
         prompt: item.prompt,
-        color: item.color || "#007AFF",
-        order: index,
       });
     });
 
@@ -114,57 +110,4 @@ export const saveAllTopics = async (items: Topic[]): Promise<void> => {
     console.error("Error saving all topics:", error);
     throw error;
   }
-};
-
-// Initialize Firebase or mock service with default topics if none exist
-export const initializeDefaultTopics = async (): Promise<void> => {
-  if (!isFirebaseConfigured()) {
-    return mockFirebaseService.initializeDefaultTopics();
-  }
-
-  try {
-    const existingItems = await getTopics();
-
-    if (existingItems.length === 0) {
-      const defaultItems = getDefaultTopics();
-      await saveAllTopics(defaultItems);
-    }
-  } catch (error) {
-    console.error("Error initializing default topics:", error);
-  }
-};
-
-// Get default topics
-export const getDefaultTopics = (): Topic[] => {
-  return [
-    {
-      id: "1",
-      label: "Summarize",
-      prompt: "Please summarize the following news in one clear sentence",
-      color: "#007AFF",
-      order: 0,
-    },
-    {
-      id: "2",
-      label: "Explain",
-      prompt:
-        "Please explain this news story in simple terms for better understanding",
-      color: "#34C759",
-      order: 1,
-    },
-    {
-      id: "3",
-      label: "Analyze",
-      prompt: "Please analyze the key implications and impact of this news",
-      color: "#FF9500",
-      order: 2,
-    },
-    {
-      id: "4",
-      label: "Key Points",
-      prompt: "Please extract the main key points from this news story",
-      color: "#AF52DE",
-      order: 3,
-    },
-  ];
 };

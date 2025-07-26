@@ -29,16 +29,16 @@ export default function SettingsScreen() {
 
   // Use TanStack Query hooks
   const {
-    data: promptItems = [],
+    data: topicItems = [],
     isLoading: loading,
-    error: promptError,
-    refetch: refetchPrompts,
+    error: topicError,
+    refetch: refetchTopics,
   } = useTopicItems();
 
-  const savePromptMutation = useSaveTopicItem();
-  const deletePromptMutation = useDeleteTopicItem();
+  const saveTopicMutation = useSaveTopicItem();
+  const deleteTopicMutation = useDeleteTopicItem();
 
-  const saving = savePromptMutation.isPending || deletePromptMutation.isPending;
+  const saving = saveTopicMutation.isPending || deleteTopicMutation.isPending;
 
   const addItem = async () => {
     if (newLabel.trim() && newPrompt.trim()) {
@@ -47,10 +47,9 @@ export default function SettingsScreen() {
           id: Date.now().toString(),
           label: newLabel.trim(),
           prompt: newPrompt.trim(),
-          order: promptItems.length, // Default order based on current length
         };
 
-        await savePromptMutation.mutateAsync(newItem);
+        await saveTopicMutation.mutateAsync(newItem);
 
         setNewLabel("");
         setNewPrompt("");
@@ -73,7 +72,7 @@ export default function SettingsScreen() {
           prompt: newPrompt.trim(),
         };
 
-        await savePromptMutation.mutateAsync(updatedItem);
+        await saveTopicMutation.mutateAsync(updatedItem);
 
         setEditingItem(null);
         setNewLabel("");
@@ -98,7 +97,7 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await deletePromptMutation.mutateAsync(id);
+              await deleteTopicMutation.mutateAsync(id);
             } catch (error) {
               console.error("Error deleting prompt item:", error);
               Alert.alert("Error", "Failed to delete prompt item");
@@ -127,7 +126,7 @@ export default function SettingsScreen() {
   };
 
   // Handle error state
-  if (promptError) {
+  if (topicError) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.errorContainer}>
@@ -136,7 +135,7 @@ export default function SettingsScreen() {
           </ThemedText>
           <TouchableOpacity
             style={styles.retryButton}
-            onPress={() => refetchPrompts()}
+            onPress={() => refetchTopics()}
           >
             <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
           </TouchableOpacity>
@@ -245,14 +244,14 @@ export default function SettingsScreen() {
         <ThemedView style={styles.listContainer}>
           <ThemedText style={styles.listTitle}>Current Prompts</ThemedText>
 
-          {promptItems.length === 0 ? (
+          {topicItems.length === 0 ? (
             <ThemedView style={styles.emptyState}>
               <ThemedText style={styles.emptyStateText}>
                 No prompts available. Add your first prompt above.
               </ThemedText>
             </ThemedView>
           ) : (
-            promptItems.map((item) => (
+            topicItems.map((item: Topic) => (
               <ThemedView key={item.id} style={styles.promptItem}>
                 <ThemedView style={styles.promptInfo}>
                   <ThemedText style={styles.promptLabel}>

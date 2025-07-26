@@ -112,7 +112,6 @@ export default function HomeScreen() {
                 key={item.id}
                 style={[
                   styles.topicButton,
-                  { backgroundColor: item.color || "#007AFF" },
                   processingPrompt && styles.topicButtonDisabled,
                 ]}
                 onPress={() => handlePromptPress(item)}
@@ -254,6 +253,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     borderRadius: 4,
     justifyContent: "center",
+    backgroundColor: "#007AFF",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,

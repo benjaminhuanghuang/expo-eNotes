@@ -53,7 +53,7 @@ export const mockFirebaseService = {
   async getTopics(): Promise<Topic[]> {
     try {
       const items = await mockDb.get(STORAGE_KEY);
-      return items;
+      return items.sort((a, b) => a.order - b.order);
     } catch (error) {
       console.error("Mock Firebase: Error getting items", error);
       return [];
