@@ -140,8 +140,7 @@ export default function HomeScreen() {
                     style={[
                       styles.topicButtonText,
                       {
-                        color:
-                          colorScheme === "dark" ? theme.background : "#fff",
+                        color: colorScheme === "dark" ? theme.text : "#fff",
                       },
                     ]}
                   >
@@ -277,22 +276,19 @@ const styles = StyleSheet.create({
   },
   topicButton: {
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    borderRadius: 12,
+    borderRadius: 4,
     justifyContent: "center",
-    minHeight: 80,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 5,
-    margin: 4,
+    padding: 4,
   },
   topicButtonDisabled: {
     opacity: 0.6,
   },
   topicButtonText: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "600",
     textAlign: "center",
   },
