@@ -9,18 +9,18 @@ import {
 } from "../services/topicService";
 
 // Query keys
-export const promptQueryKeys = {
-  all: ["prompts"] as const,
-  lists: () => [...promptQueryKeys.all, "list"] as const,
-  list: (filters: string) => [...promptQueryKeys.lists(), { filters }] as const,
-  details: () => [...promptQueryKeys.all, "detail"] as const,
-  detail: (id: string) => [...promptQueryKeys.details(), id] as const,
+export const topicQueryKeys = {
+  all: ["topics"] as const,
+  lists: () => [...topicQueryKeys.all, "list"] as const,
+  list: (filters: string) => [...topicQueryKeys.lists(), { filters }] as const,
+  details: () => [...topicQueryKeys.all, "detail"] as const,
+  detail: (id: string) => [...topicQueryKeys.details(), id] as const,
 };
 
-// Hook to get all prompt items
-export const usePromptItems = () => {
+// Hook to get all topic items
+export const useTopicItems = () => {
   return useQuery({
-    queryKey: promptQueryKeys.lists(),
+    queryKey: topicQueryKeys.lists(),
     queryFn: async () => {
       const items = await getTopics();
 
@@ -44,24 +44,24 @@ export const useSavePromptItem = () => {
   return useMutation({
     mutationFn: (item: Topic) => saveTopic(item),
     onSuccess: () => {
-      // Invalidate and refetch prompt items
-      queryClient.invalidateQueries({ queryKey: promptQueryKeys.lists() });
+      // Invalidate and refetch topic items
+      queryClient.invalidateQueries({ queryKey: topicQueryKeys.lists() });
     },
     onError: (error) => {
-      console.error("Error saving prompt item:", error);
+      console.error("Error saving topic item:", error);
     },
   });
 };
 
-// Hook to delete a prompt item
-export const useDeletePromptItem = () => {
+// Hook to delete a topic item
+export const useDeleteTopicItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => deleteTopic(id),
     onSuccess: () => {
       // Invalidate and refetch prompt items
-      queryClient.invalidateQueries({ queryKey: promptQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: topicQueryKeys.lists() });
     },
     onError: (error) => {
       console.error("Error deleting prompt item:", error);
@@ -76,20 +76,20 @@ export const useSaveAllPromptItems = () => {
   return useMutation({
     mutationFn: (items: Topic[]) => saveAllTopics(items),
     onSuccess: () => {
-      // Invalidate and refetch prompt items
-      queryClient.invalidateQueries({ queryKey: promptQueryKeys.lists() });
+      // Invalidate and refetch topic items
+      queryClient.invalidateQueries({ queryKey: topicQueryKeys.lists() });
     },
     onError: (error) => {
-      console.error("Error saving all prompt items:", error);
+      console.error("Error saving all topic items:", error);
     },
   });
 };
 
-// Hook to manually refetch prompt items
-export const useRefreshPromptItems = () => {
+// Hook to manually refetch topic items
+export const useRefreshTopicItems = () => {
   const queryClient = useQueryClient();
 
   return () => {
-    queryClient.invalidateQueries({ queryKey: promptQueryKeys.lists() });
+    queryClient.invalidateQueries({ queryKey: topicQueryKeys.lists() });
   };
 };

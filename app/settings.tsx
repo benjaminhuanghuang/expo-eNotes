@@ -17,7 +17,7 @@ import {
   useDeletePromptItem,
   usePromptItems,
   useSavePromptItem,
-} from "@/hooks/usePromptQueries";
+} from "@/hooks/useTopicQueries";
 import type { Topic } from "@/services/topicService";
 
 export default function SettingsScreen() {

@@ -11,8 +11,8 @@ import {
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { IconSymbol } from "@/components/ui/IconSymbol";
-import { usePromptItems } from "@/hooks/usePromptQueries";
+import { IconSymbol } from "@/components/ui/IconSymbol.ios";
+import { useTopicItems } from "@/hooks/useTopicQueries";
 import type { Topic } from "@/services/topicService";
 
 const mockNews = [
@@ -32,13 +32,13 @@ export default function HomeScreen() {
   const router = useRouter();
   const [processingPrompt, setProcessingPrompt] = useState(false);
 
-  // Use TanStack Query to fetch prompt items
+  // Use TanStack Query to fetch topic items
   const {
-    data: promptItems = [],
-    isLoading: loadingPrompts,
-    error: promptError,
-    refetch: refetchPrompts,
-  } = usePromptItems();
+    data: topicItems = [],
+    isLoading: loadingTopics,
+    error: topicError,
+    refetch: refetchTopics,
+  } = useTopicItems();
 
   const handlePromptPress = async (prompt: Topic) => {
     try {
@@ -70,16 +70,17 @@ export default function HomeScreen() {
   };
 
   // Handle error state
-  if (promptError) {
+  if (topicError) {
     return (
       <SafeAreaView style={styles.container}>
         <ThemedView style={styles.errorContainer}>
           <ThemedText style={styles.errorText}>
-            Failed to load settings
+            Failed to load topics. Please check your internet connection or try
+            again later.
           </ThemedText>
           <TouchableOpacity
             style={styles.retryButton}
-            onPress={() => refetchPrompts()}
+            onPress={() => refetchTopics()}
           >
             <ThemedText style={styles.retryButtonText}>Retry</ThemedText>
           </TouchableOpacity>
@@ -89,12 +90,12 @@ export default function HomeScreen() {
   }
 
   // Handle loading state
-  if (loadingPrompts) {
+  if (loadingTopics) {
     return (
       <SafeAreaView style={styles.container}>
         <ThemedView style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <ThemedText style={styles.loadingText}>Loading prompts...</ThemedText>
+          <ThemedText style={styles.loadingText}>Loading topics...</ThemedText>
         </ThemedView>
       </SafeAreaView>
     );
@@ -103,10 +104,33 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <ThemedView style={styles.header}>
-          <ThemedText type="title" style={styles.title}>
-            AI News Dashboard
-          </ThemedText>
+        {/* Topic Buttons Grid */}
+        <ThemedView style={styles.actionBar}>
+          <ThemedView style={styles.topicButtonsGrid}>
+            {topicItems.map((item: Topic) => (
+              <TouchableOpacity
+                key={item.id}
+                style={[
+                  styles.topicButton,
+                  { backgroundColor: item.color || "#007AFF" },
+                  processingPrompt && styles.topicButtonDisabled,
+                ]}
+                onPress={() => handlePromptPress(item)}
+                disabled={processingPrompt}
+              >
+                <ThemedText style={styles.topicButtonText}>
+                  {item.label}
+                </ThemedText>
+              </TouchableOpacity>
+            ))}
+          </ThemedView>
+          {/* Empty State */}
+          {topicItems.length === 0 && !loadingTopics && (
+            <ThemedText style={styles.emptyStateText}>
+              No topics available. Go to Settings to add some.
+            </ThemedText>
+          )}
+          {/* Settings Button */}
           <TouchableOpacity
             style={styles.settingsButton}
             onPress={navigateToSettings}
@@ -114,11 +138,8 @@ export default function HomeScreen() {
             <IconSymbol name="gear" size={24} color="#007AFF" />
           </TouchableOpacity>
         </ThemedView>
-
+        {/* Topic Buttons Grid */}
         <ThemedView style={styles.newsSection}>
-          <ThemedText type="subtitle" style={styles.sectionTitle}>
-            Top 10 News Stories
-          </ThemedText>
           {mockNews.map((news, index) => (
             <ThemedView key={index} style={styles.newsItem}>
               <ThemedText style={styles.newsIndex}>{index + 1}.</ThemedText>
@@ -141,41 +162,6 @@ export default function HomeScreen() {
               <ThemedText style={styles.processingText}>
                 Processing...
               </ThemedText>
-            </ThemedView>
-          )}
-
-          <ThemedView style={styles.promptGrid}>
-            {promptItems.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={[
-                  styles.promptButton,
-                  { backgroundColor: item.color || "#007AFF" },
-                  processingPrompt && styles.promptButtonDisabled,
-                ]}
-                onPress={() => handlePromptPress(item)}
-                disabled={processingPrompt}
-              >
-                <ThemedText style={styles.promptButtonText}>
-                  {item.label}
-                </ThemedText>
-              </TouchableOpacity>
-            ))}
-          </ThemedView>
-
-          {promptItems.length === 0 && !loadingPrompts && (
-            <ThemedView style={styles.emptyState}>
-              <ThemedText style={styles.emptyStateText}>
-                No prompts available. Go to Settings to add some.
-              </ThemedText>
-              <TouchableOpacity
-                style={styles.settingsLinkButton}
-                onPress={navigateToSettings}
-              >
-                <ThemedText style={styles.settingsLinkText}>
-                  Open Settings
-                </ThemedText>
-              </TouchableOpacity>
             </ThemedView>
           )}
         </ThemedView>
@@ -270,31 +256,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#007AFF",
   },
-  promptGrid: {
+  actionBar: {
     flexDirection: "row",
     flexWrap: "wrap",
+    alignItems: "center",
     justifyContent: "space-between",
   },
-  promptButton: {
-    width: "48%",
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 16,
+  topicButtonsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 4,
+  },
+  topicButton: {
     alignItems: "center",
+    paddingHorizontal: 2,
+    borderRadius: 4,
     justifyContent: "center",
-    minHeight: 80,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 5,
   },
-  promptButtonDisabled: {
+  topicButtonDisabled: {
     opacity: 0.6,
   },
-  promptButtonText: {
+  topicButtonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 10,
     fontWeight: "600",
     textAlign: "center",
   },
